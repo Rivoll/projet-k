@@ -1,0 +1,32 @@
+---
+- name: Install kubectl
+  hosts: all
+  become: yes
+  tasks:
+    - name: Add Kubernetes APT repository key
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        state: present
+
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install kubectl
+      ansible.builtin.apt:
+        name: kubectl
+        state: latest
+
+    - name: Verify kubectl installation
+      ansible.builtin.command:
+        cmd: kubectl version --client
+      register: kubectl_version_output
+
+    - name: Display kubectl version
+      ansible.builtin.debug:
+        var: kubectl_version_output.stdout

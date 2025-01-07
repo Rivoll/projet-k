@@ -1,0 +1,38 @@
+---
+- name: Install Terraform
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Download Terraform binary
+      get_url:
+        url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+        dest: /tmp/terraform.zip
+
+    - name: Install unzip if not already installed
+      apt:
+        name: unzip
+        state: present
+
+    - name: Extract Terraform binary
+      unarchive:
+        src: /tmp/terraform.zip
+        dest: /usr/local/bin/
+        remote_src: yes
+
+    - name: Ensure Terraform binary is executable
+      file:
+        path: /usr/local/bin/terraform
+        mode: '0755'
+
+    - name: Verify Terraform installation
+      command: terraform version
+      register: terraform_output
+      ignore_errors: yes
+
+    - name: Print Terraform version
+      debug:
+        msg: "{{ terraform_output.stdout }}"
+        
+  vars:
+    terraform_version: "1.5.7"  # Change this to the desired version
