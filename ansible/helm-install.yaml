@@ -1,0 +1,35 @@
+---
+- name: Install Helm on Local Machine
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Ensure dependencies are installed (curl, tar, etc.)
+      apt:
+        name:
+          - curl
+          - tar
+        state: present
+        update_cache: yes
+
+    - name: Download Helm
+      shell: |
+        curl -fsSL https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz -o helm.tar.gz
+        tar -zxvf helm.tar.gz
+      args:
+        chdir: /tmp
+      register: helm_download
+
+    - name: Move Helm binary to /usr/local/bin
+      copy:
+        src: /tmp/linux-amd64/helm
+        dest: /usr/local/bin/helm
+        mode: '0755'
+
+    - name: Verify Helm installation
+      command: helm version
+      register: helm_version
+
+    - name: Display Helm version
+      debug:
+        msg: "{{ helm_version.stdout }}"

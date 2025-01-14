@@ -1,0 +1,20 @@
+controller:
+  image: "jenkins/jenkins:lts"
+  tag: "lts"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+  serviceType: LoadBalancer
+  ingress:
+    enabled: false
+  adminUser: admin
+  adminPassword: admin123
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 8Gi

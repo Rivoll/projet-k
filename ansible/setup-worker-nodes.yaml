@@ -1,0 +1,67 @@
+---
+- name: Setup Kubernetes Worker Node
+  hosts: worker
+  gather_facts: no
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Install necessary dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gpg
+        state: present
+        update_cache: yes
+
+    - name: Download Kubernetes APT key
+      get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        dest: /tmp/kubernetes-release.key
+
+    - name: Convert the key to GPG format
+      command: >
+        gpg --dearmor
+        --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        /tmp/kubernetes-release.key
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Ensure /tmp/kubernetes-release.key is removed
+      file:
+        path: /tmp/kubernetes-release.key
+        state: absent
+
+    - name: Add Kubernetes APT repository
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list.d/kubernetes.list
+        line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        state: present
+        create: yes
+        mode: '0644'
+    - name: Install Kubernetes components
+      apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+        update_cache: yes
+
+    - name: Disable swap
+      command: swapoff -a
+
+    - name: Remove swap entry from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: 'swap'
+        state: absent
+
+    - name: Join the Kubernetes cluster
+      shell: |
+        kubeadm join 13.38.230.167:6443 \
+          --token q1cbm6.szt9a8u7oju22sub \
+          --discovery-token-ca-cert-hash sha256:25000195d5028e0da6b57e6e0ab603369e128fe5cba2eb2d8c708781b3451ac5
