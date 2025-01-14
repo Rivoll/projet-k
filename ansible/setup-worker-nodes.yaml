@@ -1,67 +1,140 @@
 ---
-- name: Setup Kubernetes Worker Node
+- name: Install and configure containerd, Kubernetes tools, and initialize cluster
   hosts: worker
-  gather_facts: no
   become: yes
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
   tasks:
-    - name: Install necessary dependencies
+    - name: Disable swap
+      command: swapoff -a
+
+    - name: Comment out swap entry in /etc/fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#]*\s+swap\s+)'
+        replace: '#\1'
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages for containerd
       apt:
         name:
           - apt-transport-https
           - ca-certificates
           - curl
-          - software-properties-common
-          - gpg
+          - gnupg
+          - lsb-release
         state: present
-        update_cache: yes
 
-    - name: Download Kubernetes APT key
+    - name: Download containerd binary
       get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-        dest: /tmp/kubernetes-release.key
+        url: "https://github.com/containerd/containerd/releases/download/v1.6.22/containerd-1.6.22-linux-amd64.tar.gz"
+        dest: "/tmp/containerd.tar.gz"
 
-    - name: Convert the key to GPG format
-      command: >
-        gpg --dearmor
-        --output /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-        /tmp/kubernetes-release.key
+    - name: Extract containerd binary
+      unarchive:
+        src: "/tmp/containerd.tar.gz"
+        dest: "/usr/local"
+        remote_src: yes
+
+    - name: Create systemd service directory
+      file:
+        path: /usr/local/lib/systemd/system
+        state: directory
+        mode: '0755'
+
+    - name: Download containerd systemd service file
+      get_url:
+        url: "https://raw.githubusercontent.com/containerd/containerd/main/containerd.service"
+        dest: "/usr/local/lib/systemd/system/containerd.service"
+
+    - name: Reload systemd daemon
+      command: systemctl daemon-reload
+
+    - name: Enable and start containerd service
+      systemd:
+        name: containerd
+        enabled: yes
+        state: started
+
+    - name: Download runc binary
+      get_url:
+        url: "https://github.com/opencontainers/runc/releases/download/v1.1.7/runc.amd64"
+        dest: "/usr/local/sbin/runc"
+        mode: '0755'
+
+    - name: Create CNI plugins directory
+      file:
+        path: /opt/cni/bin
+        state: directory
+        mode: '0755'
+
+    - name: Download CNI plugins
+      get_url:
+        url: "https://github.com/containernetworking/plugins/releases/download/v1.1.1/cni-plugins-linux-amd64-v1.1.1.tgz"
+        dest: "/tmp/cni-plugins.tgz"
+
+    - name: Extract CNI plugins
+      unarchive:
+        src: "/tmp/cni-plugins.tgz"
+        dest: "/opt/cni/bin"
+        remote_src: yes
+
+    - name: Create apt keyrings directory for Kubernetes
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download Kubernetes GPG key
+      shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       args:
         creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-    - name: Ensure /tmp/kubernetes-release.key is removed
-      file:
-        path: /tmp/kubernetes-release.key
-        state: absent
-
-    - name: Add Kubernetes APT repository
+    - name: Add Kubernetes repository
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list.d/kubernetes.list
         line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
-        state: present
         create: yes
-        mode: '0644'
-    - name: Install Kubernetes components
+
+    - name: Update apt cache for Kubernetes
       apt:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl
-        state: present
         update_cache: yes
 
-    - name: Disable swap
-      command: swapoff -a
+    - name: Install kubeadm, kubectl, and kubelet
+      apt:
+        name:
+          - kubeadm
+          - kubectl
+          - kubelet
+        state: present
 
-    - name: Remove swap entry from /etc/fstab
-      lineinfile:
-        path: /etc/fstab
-        regexp: 'swap'
-        state: absent
+    - name: Mark kubeadm, kubectl, and kubelet to hold
+      apt:
+        name:
+          - kubeadm
+          - kubectl
+          - kubelet
+        state: present
+        allow_downgrade: yes
+        force: yes
 
-    - name: Join the Kubernetes cluster
-      shell: |
-        kubeadm join 13.38.230.167:6443 \
-          --token q1cbm6.szt9a8u7oju22sub \
-          --discovery-token-ca-cert-hash sha256:25000195d5028e0da6b57e6e0ab603369e128fe5cba2eb2d8c708781b3451ac5
+    - name: Enable and start kubelet service
+      systemd:
+        name: kubelet
+        enabled: yes
+        state: started
+
+    - name: Enable IP forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Ensure containerd is running
+      systemd:
+        name: containerd
+        state: started
+        enabled: yes

@@ -1,6 +1,6 @@
 ---
 - name: Install and configure containerd, Kubernetes tools, and initialize cluster
-  hosts: admin2
+  hosts: admin
   become: yes
   tasks:
     - name: Disable swap
