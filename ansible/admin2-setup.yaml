@@ -6,12 +6,6 @@
     - name: Disable swap
       command: swapoff -a
 
-    - name: Comment out swap entry in /etc/fstab
-      replace:
-        path: /etc/fstab
-        regexp: '^([^#]*\s+swap\s+)'
-        replace: '#\1'
-
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -56,6 +50,63 @@
         name: containerd
         enabled: yes
         state: started
+
+    - name: Setting up the containerd runtime configurations
+      block:
+        - name: Making sure the unarchive directory exists 
+          ansible.builtin.file: 
+            path: "/opt/cni/bin/"
+            state: directory
+            
+    - name: Make the directory
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Generate CNI configurations
+      ansible.builtin.shell: "containerd config default > /etc/containerd/config.toml"
+        
+    - name: Change the systemd driver of containerd
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        replace: 'SystemdCgroup = true'
+            
+    - name: Changing the user permissions to access container socket
+      block:
+        - name: Setting up a group
+          ansible.builtin.group:
+            name: containerd
+            state: present
+        
+        - name: Retrive the group id
+          ansible.builtin.shell: "cat /etc/group | grep containerd | awk -F ':' '{print $3}'"
+          register: containerd_group_id
+
+        - name: Adding the user to the group
+          ansible.builtin.user: 
+            name: devuser
+            groups: containerd
+            append: yes
+        
+        - name: Add the group id in the config file 
+          ansible.builtin.replace:
+            path: /etc/containerd/config.toml
+            after: '[grpc]\n*address = "/run/containerd/containerd.sock"'
+            regexp: gid = 0
+            replace: 'gid = {{ containerd_group_id.stdout }}'
+
+        - name: Changing permission of the socket to the group
+          ansible.builtin.file: 
+            path: "/run/containerd/containerd.sock"
+            group: containerd
+
+    - name: Reloading the containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: true
+
 
     - name: Download runc binary
       get_url:
@@ -164,9 +215,20 @@
         name: containerd
         state: started
         enabled: yes
+    - name: Create kubeadm-config.yaml
+      copy:
+        dest: ./kubeadm-config.yaml
+        content: |
+          kind: ClusterConfiguration
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kubernetesVersion: v1.32.0
+          ---
+          kind: KubeletConfiguration
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          cgroupDriver: systemd
 
     - name: Initialize Kubernetes cluster using kubeadm
-      command: kubeadm init --ignore-preflight-errors=Mem,NumCPU
+      command: kubeadm init --ignore-preflight-errors=Mem,NumCPU  --config kubeadm-config.yaml
 
     - name: Create .kube directory for user ubuntu
       file:
@@ -192,3 +254,7 @@
       command: kubeadm version
       register: kubeadm_status
       changed_when: false
+
+    - name: install calico
+      command: kubectl apply -f https://docs.projectcalico.org/v3.25/manifests/calico.yaml
+

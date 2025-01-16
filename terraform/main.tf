@@ -28,7 +28,7 @@ resource "aws_instance" "worker" {
 
 resource "aws_instance" "admin" {
   ami           = "ami-09be70e689bddcef5"
-  instance_type = "t2.micro"  # Replace with your desired instance type
+  instance_type = "t3.medium"  
 
 
   security_groups = [aws_security_group.worker_sg.name]

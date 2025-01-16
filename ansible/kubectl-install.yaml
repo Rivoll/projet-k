@@ -1,6 +1,6 @@
 ---
 - name: Install kubectl
-  hosts: all
+  hosts: admin
   become: yes
   tasks:
     - name: Add Kubernetes APT repository key

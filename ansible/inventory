@@ -1,6 +1,6 @@
 admin:
   hosts:
-    13.38.94.21:
+    15.237.111.163:
       ansible_ssh_private_key_file: /home/ubuntu/.ssh/main.pem
       ansible_user: ubuntu
       ansible_python_interpreter: /usr/bin/python3
