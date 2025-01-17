@@ -168,7 +168,7 @@ resource "aws_security_group" "worker_sg" {
 }
 
 # Launch Template for k8s Workers
-
+/*
 resource "aws_launch_template" "worker_template" {
   name_prefix   = "worker-template"
   image_id      = "ami-09be70e689bddcef5"
@@ -205,3 +205,5 @@ resource "aws_autoscaling_group" "worker_asg" {
     propagate_at_launch = true
   }
 }
+
+*/
