@@ -1,0 +1,17 @@
+---
+- name: Install ArgoCD
+  hosts: main
+  become: true
+  tasks:
+    - name: download latest version of ArgoCD
+      get_url:
+        url: https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        dest: /tmp/argocd-linux-amd64
+
+    - name: install ArgoCD
+      command: sudo install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd
+
+    - name: remove installer
+      command: rm /tmp/argocd-linux-amd64
+
+

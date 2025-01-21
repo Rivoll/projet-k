@@ -35,6 +35,11 @@ resource "aws_instance" "admin" {
 
   key_name = "projet-k"
   iam_instance_profile = "admin-profile"
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 30
+  }
+
 
   tags = {
     Name = "Admin-k8s-instance"
@@ -168,16 +173,25 @@ resource "aws_security_group" "worker_sg" {
 }
 
 # Launch Template for k8s Workers
-/*
 resource "aws_launch_template" "worker_template" {
   name_prefix   = "worker-template"
   image_id      = "ami-09be70e689bddcef5"
-  instance_type = "t2.micro"
+  instance_type = "t3.medium"
   key_name = "projet-k"
 
   iam_instance_profile {
     name = aws_iam_instance_profile.worker_profile.name
   }
+  block_device_mappings {
+    device_name = "/dev/sdf"
+
+    ebs {
+      volume_size = 30
+      volume_type = "gp3"
+    }
+  }
+
+
 
   network_interfaces {
     associate_public_ip_address = true
@@ -205,5 +219,3 @@ resource "aws_autoscaling_group" "worker_asg" {
     propagate_at_launch = true
   }
 }
-
-*/

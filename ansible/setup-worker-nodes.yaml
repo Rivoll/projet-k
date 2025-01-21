@@ -6,12 +6,6 @@
     - name: Disable swap
       command: swapoff -a
 
-    - name: Comment out swap entry in /etc/fstab
-      replace:
-        path: /etc/fstab
-        regexp: '^([^#]*\s+swap\s+)'
-        replace: '#\1'
-
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -56,6 +50,63 @@
         name: containerd
         enabled: yes
         state: started
+
+    - name: Setting up the containerd runtime configurations
+      block:
+        - name: Making sure the unarchive directory exists 
+          ansible.builtin.file: 
+            path: "/opt/cni/bin/"
+            state: directory
+            
+    - name: Make the directory
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Generate CNI configurations
+      ansible.builtin.shell: "containerd config default > /etc/containerd/config.toml"
+        
+    - name: Change the systemd driver of containerd
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        replace: 'SystemdCgroup = true'
+            
+    - name: Changing the user permissions to access container socket
+      block:
+        - name: Setting up a group
+          ansible.builtin.group:
+            name: containerd
+            state: present
+        
+        - name: Retrive the group id
+          ansible.builtin.shell: "cat /etc/group | grep containerd | awk -F ':' '{print $3}'"
+          register: containerd_group_id
+
+        - name: Adding the user to the group
+          ansible.builtin.user: 
+            name: devuser
+            groups: containerd
+            append: yes
+        
+        - name: Add the group id in the config file 
+          ansible.builtin.replace:
+            path: /etc/containerd/config.toml
+            after: '[grpc]\n*address = "/run/containerd/containerd.sock"'
+            regexp: gid = 0
+            replace: 'gid = {{ containerd_group_id.stdout }}'
+
+        - name: Changing permission of the socket to the group
+          ansible.builtin.file: 
+            path: "/run/containerd/containerd.sock"
+            group: containerd
+
+    - name: Reloading the containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: true
+
 
     - name: Download runc binary
       get_url:
@@ -133,8 +184,37 @@
         state: present
         reload: yes
 
+    - name: Cleanup Kubernetes from previous installs (if any)
+      block:
+        - name: Stop any running Kubernetes-related services
+          systemd:
+            name: "{{ item }}"
+            state: stopped
+          loop:
+            - kubelet
+            - containerd
+
+        - name: Kill any processes using the required ports
+          shell: |
+            sudo lsof -i :6443 -i :2379 -i :2380
+            sudo kill $(sudo lsof -t -i :6443 -i :2379 -i :2380)
+          ignore_errors: yes
+
+        - name: Delete existing Kubernetes manifest files
+          file:
+            path: /etc/kubernetes/manifests/
+            state: absent
+
+        - name: Delete etcd data
+          file:
+            path: /var/lib/etcd/
+            state: absent
+
     - name: Ensure containerd is running
       systemd:
         name: containerd
         state: started
         enabled: yes
+
+    - name: join labo2 cluster
+      command: kubeadm join 172.31.11.55:6443 --token usglrb.afak37bw5c1s3f5e --discovery-token-ca-cert-hash sha256:7220c9537141a0e3837444e8ceb9d47cdff06e3aaba248150600628ea5267eee

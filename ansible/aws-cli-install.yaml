@@ -1,6 +1,6 @@
 ---
 - name: Install AWS CLI
-  hosts: all
+  hosts: main
   become: true
 
   tasks:

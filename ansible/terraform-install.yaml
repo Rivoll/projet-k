@@ -1,6 +1,6 @@
 ---
 - name: Install Terraform
-  hosts: all
+  hosts: main
   become: true
 
   tasks:

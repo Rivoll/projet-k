@@ -1,13 +1,24 @@
+main:
+  hosts:
+    localhost:
+      ansible_ssh_private_key_file: /home/ubuntu/.ssh/main.pem
+      ansible_user: ubuntu
+      ansible_python_interpreter: /usr/bin/python3
 admin:
   hosts:
-    15.237.111.163:
+    13.38.32.167:
+      ansible_ssh_private_key_file: /home/ubuntu/.ssh/main.pem
+      ansible_user: ubuntu
+      ansible_python_interpreter: /usr/bin/python3
+    13.36.167.217:
       ansible_ssh_private_key_file: /home/ubuntu/.ssh/main.pem
       ansible_user: ubuntu
       ansible_python_interpreter: /usr/bin/python3
 worker:
   hosts:
-    51.44.7.206:
+    15.236.35.196:
       ansible_ssh_private_key_file: /home/ubuntu/.ssh/main.pem
       ansible_user: ubuntu
       ansible_python_interpreter: /usr/bin/python3
+
 

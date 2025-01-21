@@ -1,6 +1,6 @@
 ---
 - name: Install containerd
-  hosts: all
+  hosts: admin
   become: yes
   tasks:
     - name: Remove all Docker-related repository entries

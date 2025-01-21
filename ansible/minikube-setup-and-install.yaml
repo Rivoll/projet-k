@@ -226,7 +226,7 @@
       shell: sudo groupadd -f docker
     
     - name: add user
-      shell: usermod -aG docker $USER
+      shell: sudo usermod -aG docker $USER
 
     - name: launch minikube
       command: minikube start --driver=docker

@@ -1,6 +1,6 @@
 ---
 - name: Install Helm on Local Machine
-  hosts: localhost
+  hosts: main
   become: yes
 
   tasks:
