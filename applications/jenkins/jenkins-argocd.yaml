@@ -5,13 +5,13 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
+  sources:
     - repoURL: https://charts.jenkins.io
       targetRevision: '*'
       chart: jenkins
       helm:
         valueFiles:
-        - $values/applications/jenkins-values.yaml
+        - $values/applications/jenkins/jenkins-values.yaml
     - repoURL: https://github.com/Rivoll/projet-k
       targetRevision: HEAD
       ref: values
