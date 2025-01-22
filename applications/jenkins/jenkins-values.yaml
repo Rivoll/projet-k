@@ -19,5 +19,5 @@ controller:
 
 persistence:
   enabled: true
-  storageClass: ""
+  storageClass: "ebs-sc"
   size: 8Gi
