@@ -14,6 +14,9 @@ spec:
     repoURL: https://github.com/Rivoll/projet-k  # Can point to either a Helm chart repo or a git repo.
     targetRevision: 1.0.0  # For Helm, this refers to the chart version.
     path: applications/jenkins  # This has no meaning for Helm charts pulled directly from a Helm repo instead of git.
+    helm:
+      releaseName: jenkins
+
     
   # Destination cluster and namespace to deploy the application
   destination:
