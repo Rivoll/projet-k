@@ -1,6 +1,8 @@
 controller:
-  image: "jenkins/jenkins:lts"
-  tag: "lts"
+  image:
+    registry: docker.io
+    repository: jenkins/jenkins
+    tag: lts
   resources:
     requests:
       cpu: "500m"
@@ -11,8 +13,9 @@ controller:
   serviceType: LoadBalancer
   ingress:
     enabled: false
-  adminUser: admin
-  adminPassword: admin123
+  admin:
+    username: admin
+    password: admin123
 
 persistence:
   enabled: true
