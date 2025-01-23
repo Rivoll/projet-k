@@ -217,4 +217,5 @@
         enabled: yes
 
     - name: join labo2 cluster
-      command: kubeadm join 172.31.11.55:6443 --token usglrb.afak37bw5c1s3f5e --discovery-token-ca-cert-hash sha256:7220c9537141a0e3837444e8ceb9d47cdff06e3aaba248150600628ea5267eee
+      command: kubeadm join 172.31.11.55:6443 --token v4n5s9.opkqmwi8o6ylpfry --discovery-token-ca-cert-hash sha256:7220c9537141a0e3837444e8ceb9d47cdff06e3aaba248150600628ea5267eee 
+      # La commande est valable que 24H donc faudrait trouver un moyen d'obtenir cette commande avec un mini script pour aller la chercher directement depuis l'admin.

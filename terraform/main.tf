@@ -16,6 +16,13 @@ data "aws_subnets" "default_subnets" {
 }
 
 
+data "aws_security_group" "default" {
+    filter {
+    name   = "group-name"
+    values = ["default"]
+    }
+}
+
 /*
 resource "aws_instance" "worker" {
   ami           = "ami-09be70e689bddcef5"
@@ -39,14 +46,27 @@ resource "aws_instance" "admin" {
     volume_type = "gp3"
     volume_size = 30
   }
-
-
   tags = {
     Name = "Admin-k8s-instance"
   }
-
 }
 
+resource "aws_instance" "worker" {
+  ami           = "ami-09be70e689bddcef5"
+  instance_type = "t3.medium"  
+
+  security_groups = [aws_security_group.worker_sg.name]
+
+  key_name = "projet-k"
+  iam_instance_profile = "admin-profile"
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 30
+  }
+  tags = {
+    Name = "worker-1"
+  }
+}
 
 # Admin Node IAM Policy
 resource "aws_iam_policy" "admin_node_policy" {
@@ -101,6 +121,11 @@ resource "aws_iam_policy" "worker_node_policy" {
           "ec2:AttachVolume",
           "ec2:DetachVolume",
           "elasticloadbalancing:*",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
           "autoscaling:Describe*",
           "cloudwatch:*",
           "ecr:GetAuthorizationToken",
@@ -109,6 +134,10 @@ resource "aws_iam_policy" "worker_node_policy" {
           "ecr:BatchGetImage",
           "s3:GetObject",
           "s3:ListBucket",
+          "ec2:CreateSecurityGroup",
+          "ec2:DescribeSecurityGroups",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress"
         ]
         Effect   = "Allow"
         Resource = "*"
@@ -116,6 +145,7 @@ resource "aws_iam_policy" "worker_node_policy" {
     ]
   })
 }
+
 
 # Worker Node IAM Role
 resource "aws_iam_role" "worker_node_role" {
@@ -159,9 +189,16 @@ resource "aws_security_group" "worker_sg" {
 
   ingress {
     from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["91.169.209.14/32"]
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    security_groups = [data.aws_security_group.default.id]
   }
 
   egress {
@@ -183,15 +220,13 @@ resource "aws_launch_template" "worker_template" {
     name = aws_iam_instance_profile.worker_profile.name
   }
   block_device_mappings {
-    device_name = "/dev/sdf"
+    device_name = "/dev/sda1"
 
     ebs {
       volume_size = 30
       volume_type = "gp3"
     }
   }
-
-
 
   network_interfaces {
     associate_public_ip_address = true
@@ -200,6 +235,7 @@ resource "aws_launch_template" "worker_template" {
 }
 
 # Auto Scaling Group for k8S Workers
+/*
 resource "aws_autoscaling_group" "worker_asg" {
   name                = "ASG-projet-k"
   desired_capacity     = 1
@@ -219,3 +255,4 @@ resource "aws_autoscaling_group" "worker_asg" {
     propagate_at_launch = true
   }
 }
+*/

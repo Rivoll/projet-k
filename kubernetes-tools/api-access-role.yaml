@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # Role name
+  name: api-access-role
+rules:
+ apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: api-server-access
+rules:
+  - verbs: ["get"]
+    resources: ["*"]
+    apiGroups: [""]
+

@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: api-access-binding
+subjects:
+  - kind: ServiceAccount
+    name: curl-access # Name of the service account
+    namespace: kube-system # The namespace where the Service Account resides
+roleRef:
+  kind: ClusterRole
+  name: api-access-role # The name of the ClusterRole
+  apiGroup: rbac.authorization.k8s.io
