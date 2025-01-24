@@ -13,10 +13,6 @@ controller:
   serviceType: LoadBalancer
   ingress:
     enabled: false
-  admin:
-    username: admin
-    password: admin123
-
 persistence:
   enabled: true
   storageClass: "ebs-sc"
