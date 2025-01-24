@@ -209,6 +209,18 @@ resource "aws_security_group" "worker_sg" {
   }
 }
 
+
+# registry
+resource "aws_ecrpublic_repository" "foo" {
+  region = "eu-west-3"
+
+  repository_name = "my-first-registry"
+  tags = {
+    env = "dev"
+  }
+}
+
+
 # Launch Template for k8s Workers
 resource "aws_launch_template" "worker_template" {
   name_prefix   = "worker-template"
@@ -234,6 +246,9 @@ resource "aws_launch_template" "worker_template" {
   }
 }
 
+
+
+
 # Auto Scaling Group for k8S Workers
 /*
 resource "aws_autoscaling_group" "worker_asg" {
@@ -256,3 +271,11 @@ resource "aws_autoscaling_group" "worker_asg" {
   }
 }
 */
+
+
+
+
+
+
+
+
