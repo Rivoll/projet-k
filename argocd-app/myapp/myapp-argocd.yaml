@@ -10,9 +10,11 @@ spec:
       path: applications-charts/myApp
       targetRevision: HEAD
       helm:
+        valueFiles:
+        - helm/myapp-chart/values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: myapp
+    namespace: myapp-dev
   syncPolicy:
     automated:
       prune: true

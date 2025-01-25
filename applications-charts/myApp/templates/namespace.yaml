@@ -1,4 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: myapp
+  name: myapp-dev
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: myapp-staging
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: myapp-prod

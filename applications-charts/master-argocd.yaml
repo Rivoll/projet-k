@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: all-applications
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/Rivoll/projet-k/
+        revision: HEAD
+        directories:
+          - path: "argocd-app/*/"  # Cela indique qu'il faut prendre tous les sous-dossiers (app1, app2, app3)
+  template:
+    metadata:
+      name: '{{path.basename}}'  # Le nom de l'application sera basé sur le nom du dossier
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Rivoll/projet-k/
+        targetRevision: HEAD
+        path: "{{path}}/*.yaml"
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{path.basename}}'  
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

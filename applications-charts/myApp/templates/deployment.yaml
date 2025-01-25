@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: myapp
-  namespace: myapp
+  namespace: {{.Values.namespace}}
 spec:
-  replicas: 2
+  replicas: {{.Values.replicaCount}}
   selector:
     matchLabels:
       app: myapp
@@ -17,6 +17,6 @@ spec:
       - name: myapp
         image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:latest
         ports:
-        - containerPort: 3000
+        - containerPort: 80
       imagePullSecrets:
       - name: ecr-secret
