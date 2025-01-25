@@ -1,6 +1,8 @@
 FROM nginx:alpine
 
 # Étape 2 : Copier ton site web (les fichiers HTML) dans le répertoire de Nginx
+
+RUN mkdir test
 COPY ./src/html /usr/share/nginx/html
 
 # Exposer le port 80 (le port par défaut de Nginx)
