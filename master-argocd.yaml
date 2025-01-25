@@ -9,19 +9,19 @@ spec:
         repoURL: https://github.com/Rivoll/projet-k/
         revision: HEAD
         directories:
-          - path: "argocd-app/*/"  # Cela indique qu'il faut prendre tous les sous-dossiers (app1, app2, app3)
+          - path: "argocd-app/*/"  # Récupérer les sous-dossiers dans argocd-app
   template:
     metadata:
-      name: '{{path.basename}}'  # Le nom de l'application sera basé sur le nom du dossier
+      name: '{{path.basename}}'  # Le nom de l'application basé sur le nom du dossier
     spec:
       project: default
       source:
         repoURL: https://github.com/Rivoll/projet-k/
         targetRevision: HEAD
-        path: "{{path}}/*.yaml"
+        path: "{{path}}/*.yaml"  # Vérifie que tu as des fichiers .yaml dans chaque sous-dossier
       destination:
         server: 'https://kubernetes.default.svc'
-        namespace: '{{path.basename}}'  
+        namespace: '{{path.basename}}'  # Utilise le nom du dossier pour le namespace
       syncPolicy:
         automated:
           prune: true
