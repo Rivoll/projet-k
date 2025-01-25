@@ -12,13 +12,13 @@ spec:
           - path: "argocd-app/*"  # Cela indique qu'il faut prendre tous les sous-dossiers (app1, app2, app3)
   template:
     metadata:
-      name: '{{path.basename}}'  # Le nom de l'application sera basé sur le nom du dossier
+      name: '{{path.basename}}-2'  # Le nom de l'application sera basé sur le nom du dossier
     spec:
       project: default
       source:
         repoURL: https://github.com/Rivoll/projet-k/
         targetRevision: HEAD
-        path: "applications-chart/{{.path.path}}/*.yaml'
+        path: 'argocd-app/{{path.basename}}/'
       destination:
         server: 'https://kubernetes.default.svc'
         namespace: '{{path.basename}}'  
