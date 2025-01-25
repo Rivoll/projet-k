@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "myApp.fullname" . }}
-  labels:
-    {{- include "myApp.labels" . | nindent 4 }}
+  name: mon-application-svc
+  namespace: myapp
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
   selector:
-    {{- include "myApp.selectorLabels" . | nindent 4 }}
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80  # Port exposé dans le cluster
+      targetPort: 3000  # Port sur lequel le conteneur écoute
+      nodePort: 30001  # Port exposé sur chaque nœud du cluster
+  type: NodePort
