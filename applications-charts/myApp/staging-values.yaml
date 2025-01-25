@@ -1,4 +1,4 @@
 replicaCount: 3
-namespace: myapp-staging
+namespace: staging
 port: 82
 nodePort: 30002

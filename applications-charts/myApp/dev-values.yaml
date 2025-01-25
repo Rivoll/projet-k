@@ -4,6 +4,6 @@
 
 
 replicaCount: 2
-namespace: myapp-dev
+namespace: dev
 port: 81
 nodePort: 30001

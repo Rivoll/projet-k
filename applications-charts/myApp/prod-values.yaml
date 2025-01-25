@@ -1,4 +1,4 @@
 replicaCount: 3
-namespace: myapp-prod
+namespace: prod
 port: 83
 nodePort: 30003
