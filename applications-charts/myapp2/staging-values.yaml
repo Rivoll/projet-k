@@ -1,0 +1,5 @@
+replicaCount: 3
+namespace: staging
+port: 91
+nodePort: 30011
+name: myapp2
