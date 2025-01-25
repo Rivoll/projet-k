@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp2
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/Rivoll/projet-k/
+      path: applications-charts/myapp2
+      targetRevision: HEAD
+      helm:
+        valueFiles:
+        - dev-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: myapp2-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
