@@ -18,7 +18,7 @@ spec:
       source:
         repoURL: https://github.com/Rivoll/projet-k/
         targetRevision: HEAD
-        path: "{{path}}/*.yaml"
+        path: "{{{{.path.path}}}}/*.yaml"
       destination:
         server: 'https://kubernetes.default.svc'
         namespace: '{{path.basename}}'  
