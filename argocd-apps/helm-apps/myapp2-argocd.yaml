@@ -11,7 +11,8 @@ spec:
     targetRevision: HEAD
     chart: myapp2
     helm:
-      valueFiles: dev-values.yaml
+      valueFiles:
+      - dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: myapp2-dev
