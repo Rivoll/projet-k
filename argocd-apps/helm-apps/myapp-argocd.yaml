@@ -11,7 +11,7 @@ spec:
     chart: applications-charts/myapp
     helm:
       valueFiles:
-      - applications-charts/myapp/dev-values.yaml
+        - applications-charts/myapp/dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: myapp-dev
@@ -19,5 +19,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
-repoURL: https://github.com/Rivoll/projet-k/
