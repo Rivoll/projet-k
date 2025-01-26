@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: helm-appset
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/Rivoll/projet-k # Remplacer par votre propre dépôt
+        revision: HEAD
+        files:
+          - path: "argocd-app/helm-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Helm
+  template:
+    metadata:
+      name: "{{metadata.name}}-{{fileName}}" # Nom dynamique basé sur le fichier YAML
+    spec:
+      project: default
+      source:
+        repoURL: "{{spec.source.repoURL}}"
+        targetRevision: "{{spec.source.targetRevision}}"
+        chart: "{{spec.source.chart}}" # Nom du chart Helm
+        helm:
+          valueFiles:
+            - "{{spec.source.helm.valueFiles[0]}}" # Indiquez le fichier de valeurs spécifique pour chaque application
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{spec.destination.namespace}}" # Définissez ici le namespace de déploiement
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

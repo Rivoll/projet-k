@@ -6,15 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://charts.jenkins.io
+    repoURL: https://charts.jenkins.io 
     targetRevision: 'HEAD'
-    chart: jenkins
+    chart: jenkins 
     helm:
       valueFiles:
-      - $values/applications-charts/jenkins/jenkins-values.yaml
-    - repoURL: https://github.com/Rivoll/projet-k
-      targetRevision: main
-      ref: values
+        - https://raw.githubusercontent.com/Rivoll/projet-k/main/applications-charts/jenkins/jenkins-values.yaml  # URL du fichier de valeurs GitHub
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
@@ -22,5 +19,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
-repoURL: https://github.com/Rivoll/projet-k/

@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kustomize-appset
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/Rivoll/projet-k # Remplacer par votre propre dépôt
+        revision: HEAD
+        files:
+          - path: "argocd-app/kustomize-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Kustomize
+  template:
+    metadata:
+      name: "{{metadata.name}}-{{fileName}}" # Nom dynamique basé sur le fichier YAML
+    spec:
+      project: default
+      source:
+        repoURL: "{{spec.source.repoURL}}"
+        targetRevision: "{{spec.source.targetRevision}}"
+        path: "{{spec.source.path}}" # Utilisation de Kustomize
+        kustomize:
+          namePrefix: "kustomize-" # Préfixe pour les ressources Kustomize
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{spec.destination.namespace}}" # Définir le namespace de déploiement
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
