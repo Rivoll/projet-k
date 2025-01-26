@@ -9,10 +9,10 @@ spec:
         repoURL: https://github.com/Rivoll/projet-k # Remplacer par votre propre dépôt
         revision: HEAD
         files:
-          - path: "argocd-app/helm-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Helm
+          - path: "argocd-apps/helm-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Helm
   template:
     metadata:
-      name: "{{metadata.name}}-{{fileName}}" # Nom dynamique basé sur le fichier YAML
+      name: "{{metadata.name}}" # Nom dynamique basé sur le fichier YAML
     spec:
       project: default
       source:
