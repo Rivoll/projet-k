@@ -18,7 +18,7 @@ spec:
       source:
         repoURL: "{{spec.source.repoURL}}"
         targetRevision: "{{spec.source.targetRevision}}"
-        chart: "applications-charts/{{spec.source.chart}}" # Nom du chart Helm
+        chart: "{{spec.source.chart}}" # Nom du chart Helm
         helm:
           valueFiles:
             - "{{ spec.source.helm.valueFiles[0] }}" # Indiquez le fichier de valeurs spécifique pour chaque application
