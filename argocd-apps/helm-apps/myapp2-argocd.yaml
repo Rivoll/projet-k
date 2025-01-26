@@ -8,11 +8,10 @@ spec:
   source:
     repoURL: https://github.com/Rivoll/projet-k/
     path: applications-charts/myapp2
-    targetRevision: main
+    targetRevision: HEAD
     chart: myapp2
     helm:
-      valueFiles:
-      - dev-values.yaml
+      valueFiles: dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: myapp2-dev
@@ -20,5 +19,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
-repoURL: https://github.com/Rivoll/projet-k/
