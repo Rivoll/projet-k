@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    - repoURL: https://charts.jenkins.io
-      targetRevision: '*'
-      chart: jenkins
-      helm:
-        valueFiles:
-        - $values/applications-charts/jenkins/jenkins-values.yaml
+    repoURL: https://charts.jenkins.io
+    targetRevision: 'HEAD'
+    chart: jenkins
+    helm:
+      valueFiles:
+      - $values/applications-charts/jenkins/jenkins-values.yaml
     - repoURL: https://github.com/Rivoll/projet-k
       targetRevision: main
       ref: values
