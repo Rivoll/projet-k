@@ -1,27 +1,33 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: all-applications
+  name: all-appset
   namespace: argocd
 spec:
   generators:
     - git:
-        repoURL: https://github.com/Rivoll/projet-k/
+        repoURL: https://github.com/Rivoll/projet-k
         revision: HEAD
-        directories:
-          - path: "argocd-app/*"  # Cela indique qu'il faut prendre tous les sous-dossiers (app1, app2, app3)
+        files:
+          - path: argocd-app/**/*.yaml
   template:
     metadata:
-      name: '{{path.basename}}-app'  # Le nom de l'application sera basé sur le nom du dossier
+      name: "{{metadata.name}}"
     spec:
-      project: default
+      project: "{{spec.project}}"
       source:
-        repoURL: https://github.com/Rivoll/projet-k/
-        targetRevision: HEAD
-        path: 'argocd-app/{{path.basename}}/'
+        repoURL: "{{spec.source.repoURL}}"
+        targetRevision: "{{spec.source.targetRevision}}"
+        # Go templating logic should be handled in the ApplicationSet controller,
+        # not in this YAML directly.
+        path: "{{spec.source.path | default ''}}"
+        chart: "{{spec.source.chart | default ''}}"
+        helm:
+          valueFiles:
+            - "{{spec.source.helm.valueFiles[0] | default ''}}"
       destination:
-        server: 'https://kubernetes.default.svc'
-        namespace: '{{path.basename}}'  
+        server: "{{spec.destination.server}}"
+        namespace: "{{spec.destination.namespace}}"
       syncPolicy:
         automated:
           prune: true

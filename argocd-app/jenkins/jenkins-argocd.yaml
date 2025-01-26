@@ -11,7 +11,7 @@ spec:
       chart: jenkins
       helm:
         valueFiles:
-        - $values/applications-charts/jenkins/jenkins-values.yaml
+          - applications-charts/jenkins/jenkins-values.yaml  # Corrected path
     - repoURL: https://github.com/Rivoll/projet-k
       targetRevision: HEAD
       ref: values
