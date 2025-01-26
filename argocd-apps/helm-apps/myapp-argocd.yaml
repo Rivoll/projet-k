@@ -19,3 +19,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+valueFiles: applications-charts/myapp/dev-values.yaml
