@@ -9,6 +9,7 @@ spec:
     repoURL: https://github.com/Rivoll/projet-k/
     path: applications-charts/myapp
     targetRevision: main
+    chart: myapp
     helm:
       valueFiles:
       - dev-values.yaml

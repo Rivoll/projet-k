@@ -20,11 +20,11 @@ spec:
         targetRevision: "{{spec.source.targetRevision}}"
         # Go templating logic should be handled in the ApplicationSet controller,
         # not in this YAML directly.
-        path: "{{spec.source.path | default ''}}"
-        chart: "{{spec.source.chart | default ''}}"
+        path: "{{spec.source.path}}"
+        chart: "{{spec.source.chart}}"
         helm:
           valueFiles:
-            - "{{spec.source.helm.valueFiles[0] | default ''}}"
+            - "{{spec.source.helm.valueFiles[0]}}"
       destination:
         server: "{{spec.destination.server}}"
         namespace: "{{spec.destination.namespace}}"
