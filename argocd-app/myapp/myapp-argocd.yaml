@@ -5,13 +5,13 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
-    - repoURL: https://github.com/Rivoll/projet-k/
-      path: applications-charts/myapp
-      targetRevision: main
-      helm:
-        valueFiles:
-        - dev-values.yaml
+  source:
+    repoURL: https://github.com/Rivoll/projet-k/
+    path: applications-charts/myapp
+    targetRevision: main
+    helm:
+      valueFiles:
+      - dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: myapp-dev
