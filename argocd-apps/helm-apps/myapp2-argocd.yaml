@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Rivoll/projet-k/
     path: applications-charts/myapp2
-    targetRevision: HEAD
+    targetRevision: main
     chart: myapp2
     helm:
       valueFiles:
