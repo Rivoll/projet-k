@@ -39,3 +39,5 @@ spec:
 
   # Will ignore differences between live and desired states during the diff. Note that these configurations are not
   # used during the sync process unless the `RespectIgnoreDifferences=true` sync option is enabled
+
+  repoURL: https://github.com/Rivoll/projet-k/

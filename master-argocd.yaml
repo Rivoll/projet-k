@@ -7,7 +7,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/Rivoll/projet-k
-        revision: main
+        revision: HEAD
         files:
           - path: argocd-app/**/*.yaml
   template:

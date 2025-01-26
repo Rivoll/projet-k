@@ -19,3 +19,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+repoURL: https://github.com/Rivoll/projet-k/

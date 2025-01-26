@@ -5,15 +5,15 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
+  source:
     - repoURL: https://charts.jenkins.io
       targetRevision: '*'
       chart: jenkins
       helm:
         valueFiles:
-          - applications-charts/jenkins/jenkins-values.yaml  # Corrected path
+        - $values/applications-charts/jenkins/jenkins-values.yaml
     - repoURL: https://github.com/Rivoll/projet-k
-      targetRevision: HEAD
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc
@@ -22,3 +22,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+repoURL: https://github.com/Rivoll/projet-k/

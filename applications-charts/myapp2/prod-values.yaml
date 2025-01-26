@@ -2,3 +2,4 @@ replicaCount: 3
 namespace: prod
 port: 92
 nodePort: 30012
+name: myapp2
