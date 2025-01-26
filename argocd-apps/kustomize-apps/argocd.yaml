@@ -13,7 +13,7 @@ spec:
   # Source of the application manifests
   source:
     repoURL: https://github.com/Rivoll/projet-k  # Can point to either a Helm chart repo or a git repo.
-    targetRevision: main  # For Helm, this refers to the chart version.
+    targetRevision: HEAD  # For Helm, this refers to the chart version.
     path: applications-charts/argocd  # This has no meaning for Helm charts pulled directly from a Helm repo instead of git.
     chart: argocd
     
@@ -40,5 +40,3 @@ spec:
 
   # Will ignore differences between live and desired states during the diff. Note that these configurations are not
   # used during the sync process unless the `RespectIgnoreDifferences=true` sync option is enabled
-
-  repoURL: https://github.com/Rivoll/projet-k/

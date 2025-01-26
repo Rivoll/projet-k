@@ -21,7 +21,7 @@ spec:
         chart: "{{spec.source.chart}}" # Nom du chart Helm
         helm:
           valueFiles:
-            - "{{ spec.source.helm.valueFiles }}" # Indiquez le fichier de valeurs spécifique pour chaque application
+            - "{{ spec.source.valueFiles[0] }}" # Indiquez le fichier de valeurs spécifique pour chaque application
       destination:
         server: "https://kubernetes.default.svc"
         namespace: "{{spec.destination.namespace}}" # Définissez ici le namespace de déploiement

@@ -7,9 +7,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Rivoll/projet-k/
-    path: applications-charts/myapp
     targetRevision: HEAD
-    chart: myapp
+    chart: applications-charts/myapp
     helm:
       valueFiles:
       - applications-charts/myapp/dev-values.yaml
