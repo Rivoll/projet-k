@@ -7,3 +7,4 @@ replicaCount: 2
 namespace: dev
 port: 81
 nodePort: 30001
+tag: latest

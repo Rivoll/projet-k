@@ -2,3 +2,4 @@ replicaCount: 3
 namespace: staging
 port: 80
 nodePort: 30002
+tag: latest
