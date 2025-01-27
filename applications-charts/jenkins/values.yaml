@@ -463,7 +463,7 @@ controller:
   # and must start and end with an alphanumeric character (e.g. 'my-name', or '123-abc')
   # existingSecret existing secret "secret-credentials" and a key inside it named "github-username" should be used in JCasC as ${github-username}
   # When using existingSecret no need to specify the keyName under additionalExistingSecrets.
-  existingSecret:
+  existingSecret: "123"
 
   # -- List of additional existing secrets to mount
   additionalExistingSecrets: []
