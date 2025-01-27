@@ -7,7 +7,6 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Rivoll/projet-k/
-    path: applications-charts/myapp2
     targetRevision: HEAD
     chart: myapp2
     helm:
