@@ -5,6 +5,6 @@
 
 replicaCount: 2
 namespace: dev
-port: 90
+port: 80
 nodePort: 30010
 name: myapp2

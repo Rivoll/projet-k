@@ -1,5 +1,5 @@
 replicaCount: 3
 namespace: prod
-port: 92
+port: 80
 nodePort: 30012
 name: myapp2
