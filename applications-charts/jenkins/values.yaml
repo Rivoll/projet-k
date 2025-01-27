@@ -1015,7 +1015,17 @@ agent:
   # Configure the attributes as they appear in the corresponding Java class for that type
   # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
   # -- Additional volumes
-  volumes: []
+  volumes:
+  - name: jenkins-secrets
+    projected:
+      sources:
+        - secret:
+            items:
+              - key: jenkins-admin-user
+                path: chart-admin-username
+              - key: jenkins-admin-password
+                path: chart-admin-password
+            name: "jenkins-secret"  # Ensure this is a string
   # - type: ConfigMap
   #   configMapName: myconfigmap
   #   mountPath: /var/myapp/myconfigmap
