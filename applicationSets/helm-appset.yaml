@@ -7,7 +7,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/Rivoll/projet-k # Remplacer par votre propre dépôt
-        revision: main
+        revision: HEAD
         files:
           - path: "argocd-apps/helm-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Helm
   template:
