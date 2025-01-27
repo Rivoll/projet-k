@@ -29,10 +29,12 @@ spec:
   selector:
     app: nginx-ingress-controller
   ports:
-    - protocol: TCP
+    - name: http  # Nom pour le port 80
+      protocol: TCP
       port: 80
       targetPort: 80
-    - protocol: TCP
+    - name: https  # Nom pour le port 443
+      protocol: TCP
       port: 443
       targetPort: 443
   type: LoadBalancer
