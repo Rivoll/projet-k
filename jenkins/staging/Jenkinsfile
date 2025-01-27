@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'eu-west-3' 
+        ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp"
+        IMAGE_NAME = 'latest'
+        K8S_MANIFESTS_REPO = 'https://github.com/Rivoll/projet-k/'
+        K8S_BRANCH = 'staging'
+    }
+
+    stages {
+        stage('Fetch Kubernetes Manifests') {
+            steps {
+                git branch: "${K8S_BRANCH}", url: "${K8S_MANIFESTS_REPO}"
+            }
+        }
+
+        stage('Update Image in Manifests') {
+            steps {
+                sh """
+                sed -i 's|image: .*|image: ${ECR_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}|' deployment.yaml
+                """
+            }
+        }
+
+        stage('Apply Manifests') {
+            steps {
+                sh "kubectl apply -f deployment.yaml"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployed to Staging!'
+        }
+        failure {
+            echo 'Failed to deploy to Staging!'
+        }
+    }
+}
