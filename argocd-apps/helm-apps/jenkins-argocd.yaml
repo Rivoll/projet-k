@@ -11,7 +11,7 @@ spec:
     chart: jenkins 
     helm:
       valueFiles:
-        - https://raw.githubusercontent.com/Rivoll/projet-k/main/applications-charts/jenkins/jenkins-values.yaml  # URL du fichier de valeurs GitHub
+        - https://raw.githubusercontent.com/Rivoll/projet-k/main/applications-charts/jenkins/jenkins-values.yaml 
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
@@ -19,3 +19,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+
+valueFiles: https://raw.githubusercontent.com/Rivoll/projet-k/main/applications-charts/jenkins/jenkins-values.yaml
+

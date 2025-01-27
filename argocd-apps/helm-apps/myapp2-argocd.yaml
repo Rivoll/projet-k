@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Rivoll/projet-k/
     targetRevision: HEAD
-    chart: myapp2
+    path: applications-charts/myapp2
     helm:
       valueFiles:
       - dev-values.yaml
@@ -19,6 +19,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
 
 valueFiles: applications-charts/myapp2/dev-values.yaml

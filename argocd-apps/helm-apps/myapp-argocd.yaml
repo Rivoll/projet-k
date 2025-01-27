@@ -8,10 +8,10 @@ spec:
   source:
     repoURL: https://github.com/Rivoll/projet-k/
     targetRevision: HEAD
-    chart: applications-charts/myapp
+    path: applications-charts/myapp
     helm:
       valueFiles:
-        - applications-charts/myapp/dev-values.yaml
+      - dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: myapp-dev
