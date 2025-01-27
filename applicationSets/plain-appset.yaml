@@ -18,7 +18,6 @@ spec:
       source:
         repoURL: "{{spec.source.repoURL}}"
         targetRevision: "{{spec.source.targetRevision}}"
-        path: "{{spec.source.path}}" # Nom du chart Helm
       destination:
         server: "https://kubernetes.default.svc"
         namespace: "{{spec.destination.namespace}}" # Définissez ici le namespace de déploiement
