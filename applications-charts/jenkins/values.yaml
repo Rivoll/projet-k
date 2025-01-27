@@ -1326,9 +1326,3 @@ helmtest:
       repository: "bats/bats"
       # -- Tag of the image to test the framework
       tag: "1.11.1"
-
-
-persistence:
-  enabled: true
-  storageClass: "ebs-sc"
-  size: 8Gi

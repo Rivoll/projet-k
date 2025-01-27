@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jenkins-pvc2
+  name: jenkins
   namespace: jenkins
 spec:
   storageClassName: ebs-sc
