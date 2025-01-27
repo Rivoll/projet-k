@@ -1238,51 +1238,6 @@ additionalClouds: {}
 #  remote-cloud-2:
 #    kubernetesURL: https://api.remote-cloud.com
 
-persistence:
-  # -- Enable the use of a Jenkins PVC
-  enabled: true
-
-  # A manually managed Persistent Volume and Claim
-  # Requires persistence.enabled: true
-  # If defined, PVC must be created manually before volume will be bound
-  # -- Provide the name of a PVC
-  existingClaim:
-
-  # jenkins data Persistent Volume Storage Class
-  # If defined, storageClassName: <storageClass>
-  # If set to "-", storageClassName: "", which disables dynamic provisioning
-  # If undefined (the default) or set to null, no storageClassName spec is
-  #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack)
-  # -- Storage class for the PVC
-  storageClass:
-  # -- Annotations for the PVC
-  annotations: {}
-  # -- Labels for the PVC
-  labels: {}
-  # -- The PVC access mode
-  accessMode: "ReadWriteOnce"
-  # -- The size of the PVC
-  size: "8Gi"
-
-  # ref: https://kubernetes.io/docs/concepts/storage/volume-pvc-datasource/
-  # -- Existing data source to clone PVC from
-  dataSource: {}
-  #   name: PVC-NAME
-  #   kind: PersistentVolumeClaim
-
-  # -- SubPath for jenkins-home mount
-  subPath:
-  # -- Additional volumes
-  volumes: []
-  #  - name: nothing
-  #    emptyDir: {}
-
-  # -- Additional mounts
-  mounts: []
-  #  - mountPath: /var/nothing
-  #    name: nothing
-  #    readOnly: true
-
 networkPolicy:
   # -- Enable the creation of NetworkPolicy resources
   enabled: false
@@ -1372,21 +1327,7 @@ helmtest:
       # -- Tag of the image to test the framework
       tag: "1.11.1"
 
-controller:
-  image:
-    registry: docker.io
-    repository: jenkins/jenkins
-    tag: lts
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "1Gi"
-    limits:
-      cpu: "1000m"
-      memory: "2Gi"
-  serviceType: LoadBalancer
-  ingress:
-    enabled: false
+
 persistence:
   enabled: true
   storageClass: "ebs-sc"
