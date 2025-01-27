@@ -6,30 +6,25 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/Rivoll/projet-k # Replace with your repository
+        repoURL: https://github.com/Rivoll/projet-k # Remplacer par votre propre dépôt
         revision: HEAD
         files:
-          - path: "argocd-apps/helm-apps/*.yaml" # Path to your YAML files
+          - path: "argocd-apps/helm-apps/*.yaml" # Indiquez ici le chemin vers vos fichiers YAML Helm
   template:
     metadata:
-      name: "{{metadata.name}}" # Dynamic name based on the YAML file
+      name: "{{metadata.name}}" # Nom dynamique basé sur le fichier YAML
     spec:
       project: default
       source:
         repoURL: "{{spec.source.repoURL}}"
         targetRevision: "{{spec.source.targetRevision}}"
-        # Conditional logic for 'path' or 'chart'
-        {{- if .spec.source.path }}
-        path: "{{.spec.source.path}}" # For Git-based Helm charts
-        {{- else if .spec.source.chart }}
-        chart: "{{.spec.source.chart}}" # For Helm repository-based charts
-        {{- end }}
+        path: "{{spec.source.chart}}" # Nom du chart Helm
         helm:
           valueFiles:
-            - "{{.spec.source.helm.valueFiles}}" # Dynamic value files
+            - "{{ valueFiles }}" # Indiquez le fichier de valeurs spécifique pour chaque application
       destination:
         server: "https://kubernetes.default.svc"
-        namespace: "{{.spec.destination.namespace}}" # Dynamic namespace
+        namespace: "{{spec.destination.namespace}}" # Définissez ici le namespace de déploiement
       syncPolicy:
         automated:
           prune: true
