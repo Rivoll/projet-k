@@ -91,7 +91,7 @@ controller:
     createSecret: true
 
     # -- The name of an existing secret containing the admin credentials
-    existingSecret: "123"
+    existingSecret: ""
   # -- Email address for the administrator of the Jenkins instance
   jenkinsAdminEmail:
 
@@ -463,7 +463,7 @@ controller:
   # and must start and end with an alphanumeric character (e.g. 'my-name', or '123-abc')
   # existingSecret existing secret "secret-credentials" and a key inside it named "github-username" should be used in JCasC as ${github-username}
   # When using existingSecret no need to specify the keyName under additionalExistingSecrets.
-  existingSecret: "123"
+  existingSecret:
 
   # -- List of additional existing secrets to mount
   additionalExistingSecrets: []
@@ -1015,17 +1015,7 @@ agent:
   # Configure the attributes as they appear in the corresponding Java class for that type
   # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
   # -- Additional volumes
-  volumes:
-  - name: jenkins-secrets
-    projected:
-      sources:
-        - secret:
-            items:
-              - key: jenkins-admin-user
-                path: chart-admin-username
-              - key: jenkins-admin-password
-                path: chart-admin-password
-            name: "jenkins-secret"  # Ensure this is a string
+  volumes: []
   # - type: ConfigMap
   #   configMapName: myconfigmap
   #   mountPath: /var/myapp/myconfigmap
@@ -1264,7 +1254,7 @@ persistence:
   # If undefined (the default) or set to null, no storageClassName spec is
   #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack)
   # -- Storage class for the PVC
-  storageClass: ebs-sc
+  storageClass:
   # -- Annotations for the PVC
   annotations: {}
   # -- Labels for the PVC
@@ -1381,4 +1371,3 @@ helmtest:
       repository: "bats/bats"
       # -- Tag of the image to test the framework
       tag: "1.11.1"
-
