@@ -20,4 +20,4 @@ spec:
       prune: true
       selfHeal: true
 
-valueFiles: applications-charts/myapp2/dev-values.yaml
+valueFiles: dev-values.yaml
