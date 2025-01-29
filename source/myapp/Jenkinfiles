@@ -4,8 +4,9 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = 'eu-west-3' 
         ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp"
-        IMAGE_TAG = "${BUILD_NUMBER}"  // Or use timestamp or custom versioning
-        K8S_MANIFESTS_REPO = 'https://github.com/Rivoll/projet-k.git'
+        IMAGE_TAG = "${BUILD_NUMBER}"  
+        K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git' // Use SSH instead of HTTPS
+        GIT_USER_EMAIL = credentials('git-user-email') // Store email in Jenkins Credentials
     }
 
     stages {
@@ -14,36 +15,37 @@ pipeline {
                 script {
                     // Build the Docker image
                     sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
-                    // Run tests (you can add this step if you want tests here)
-                    sh 'docker run --rm ${ECR_REPO}:${IMAGE_TAG} npm run test'  // Replace with your test command
+                    // Run tests
+                    sh 'run-test.sh'  
                 }
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                script {
-                    // Authenticate with ECR
-                    sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                    // Push the Docker image to ECR
-                    sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
+                    script {
+                        // Authenticate with ECR
+                        sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
+                        // Push the Docker image to ECR
+                        sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                    }
                 }
             }
         }
 
         stage('Update Kubernetes Manifests') {
             steps {
-                script {
-                    // Update the Kubernetes deployment YAML with the new image tag
+                sshagent(['github-ssh-key']) {
                     sh """
                     git clone ${K8S_MANIFESTS_REPO} k8s-manifests
-                    cd k8s-manifests
-                    # Update the deployment.yaml with the new image tag
-                    sed -i 's|image: .*|image: ${ECR_REPO}:${IMAGE_TAG}|' deployment.yaml
-                    # Commit the changes to the main branch
-                    git config user.email "jenkins@mydomain.com"
+                    cd k8s-manifests/applications-charts/myapp
+                    # Update image tag in values.yaml
+                    sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
+                    # Commit changes
+                    git config user.email "${GIT_USER_EMAIL}"
                     git config user.name "Jenkins"
-                    git add .
+                    git add staging-values.yaml
                     git commit -m "Update image tag to ${IMAGE_TAG}"
                     git push origin main
                     """

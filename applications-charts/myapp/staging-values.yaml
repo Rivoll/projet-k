@@ -2,4 +2,10 @@ replicaCount: 3
 namespace: staging
 port: 80
 nodePort: 30002
-tag: latest
+replicaCount: 2
+namespace: dev
+port: 81
+nodePort: 30001
+image:
+  repository: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp
+  tag: "latest"
