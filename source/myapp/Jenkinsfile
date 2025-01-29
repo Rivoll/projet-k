@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        kubernetes {
-        defaultContainer 'docker'
-        }
-    }
-
+    agent any
 
     environment {
         AWS_DEFAULT_REGION = 'eu-west-3' 
@@ -17,13 +12,11 @@ pipeline {
     stages {
         stage('Build and Test') {
             steps {
-                container('docker') { 
-                    script {
-                        // Build the Docker image
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
-                        // Run tests
-                        sh 'run-test.sh'  
-                    }
+                script {
+                    // Build the Docker image
+                    sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
+                    // Run tests
+                    sh 'run-test.sh'  
                 }
             }
         }
