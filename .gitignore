@@ -3,4 +3,6 @@ terraform.tfstate
 terraform.tfstate.backup
 *.tfstate
 *.tfstate.backup
-
+helm-charts
+helm-charts/
+helm-charts/*
