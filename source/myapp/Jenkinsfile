@@ -1,7 +1,8 @@
 pipeline {
-    agent
-    kubernetes {
-      defaultContainer 'docker'
+    agent {
+        kubernetes {
+        defaultContainer 'docker'
+        }
     }
 
 
