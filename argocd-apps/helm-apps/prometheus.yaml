@@ -11,13 +11,14 @@ spec:
     path: applications-charts/prometheus
     helm:
       valueFiles:
-      - dev-values.yaml
+      - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: prometheus
   syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+
     automated:
       prune: true
       selfHeal: true
-
-valueFiles: values.yaml
