@@ -6,7 +6,7 @@ pipeline {
         ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp"
         IMAGE_TAG = "${BUILD_NUMBER}"  
         K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git' // Use SSH instead of HTTPS
-        GIT_USER_EMAIL = credentials('patrick.keita@outlook.com') // Store email in Jenkins Credentials
+        GIT_USER_EMAIL = credentials('pkeita@student.42.fr') // Store email in Jenkins Credentials
     }
 
     stages {
