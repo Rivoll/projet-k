@@ -30,6 +30,29 @@ credentialsId:
 renderHelmLabels: true
 
 controller:
+  agent:
+    containers:
+      - name: docker
+        image: docker:20.10.7
+        securityContext:
+          privileged: true  # This is crucial for Docker-in-Docker
+        volumeMounts:
+          - mountPath: /var/run/docker.sock  # Mount Docker socket for communication
+            name: docker-socket
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+          requests:
+            memory: "256Mi"
+            cpu: "0.5"
+
+  # Define volumes that we can use to mount the Docker socket
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
+        type: Socket
   # -- Used for label app.kubernetes.io/component
   componentName: "jenkins-controller"
   image:
@@ -1371,3 +1394,6 @@ helmtest:
       repository: "bats/bats"
       # -- Tag of the image to test the framework
       tag: "1.11.1"
+
+    
+
