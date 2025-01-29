@@ -32,6 +32,12 @@ renderHelmLabels: true
 controller:
   agent:
     containers:
+      - name: jenkins
+        image: docker.io/jenkins/jenkins:2.479.3-jdk17
+        command:
+          - "sh"
+          - "-c"
+          - "apt-get update && apt-get install -y docker.io && /bin/tini -- /usr/local/bin/jenkins.sh"          
       - name: docker
         image: docker:20.10.7
         securityContext:
@@ -46,6 +52,7 @@ controller:
           requests:
             memory: "256Mi"
             cpu: "0.5"
+      
 
   # Define volumes that we can use to mount the Docker socket
   volumes:
