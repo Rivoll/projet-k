@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: prometheus
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3         # Specify the type of EBS volume (gp3, gp2, io1, etc.)
+  fsType: ext4      # File system type
+reclaimPolicy: Delete
