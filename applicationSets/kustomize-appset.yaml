@@ -20,7 +20,6 @@ spec:
         targetRevision: "{{spec.source.targetRevision}}"
         path: "{{spec.source.path}}" # Utilisation de Kustomize
         kustomize:
-          namePrefix: "kustomize-" # Préfixe pour les ressources Kustomize
       destination:
         server: "https://kubernetes.default.svc"
         namespace: "{{spec.destination.namespace}}" # Définir le namespace de déploiement
