@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+data:
+  worker-processes: "2"
+  http-port: "80"
+  https-port: "443"
+  enable-ssl-passthrough: "true"
