@@ -20,7 +20,7 @@ spec:
         path: applications-charts/{{path[1]}}  # Path to each Helm chart
         helm:
           valueFiles:
-            - "values/{{path.basename}}"  # Use matching values file (e.g., staging.yaml)
+            - "values/{{path.basename}}.yaml"  # Use matching values file (e.g., staging.yaml)
       destination:
         server: https://kubernetes.default.svc
         namespace: "{{path[1]}}-{{path.basename | split: '.' | first }}"  # appname-env
