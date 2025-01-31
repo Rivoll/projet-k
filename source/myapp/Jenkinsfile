@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-           yaml """
+            yaml """
         apiVersion: v1
         kind: Pod
         metadata:
@@ -27,8 +27,12 @@ pipeline {
             volumeMounts:
             - mountPath: /var/lib/docker
               name: docker-storage
+            - mountPath: /var/run/docker.sock
+              name: docker-sock
         volumes:
         - name: docker-storage
+          emptyDir: {}
+        - name: docker-sock
           emptyDir: {}
         """
         }
