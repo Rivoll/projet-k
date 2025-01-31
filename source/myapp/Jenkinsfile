@@ -1,52 +1,7 @@
 pipeline {
     agent {
-        kubernetes {
-            yaml """
-            apiVersion: v1
-            kind: Pod
-            metadata:
-              labels:
-                jenkins-agent: "true"
-            spec:
-              containers:
-              - name: jnlp
-                image: jenkins/inbound-agent:latest
-                tty: true
-              - name: docker
-                image: docker:20.10-dind
-                securityContext:
-                  privileged: true
-                command:
-                  - "sh"
-                  - "-c"
-                  - |
-                    apk add --no-cache shadow
-                    groupadd -g 999 docker || true
-                    usermod -aG docker jenkins || true
-                    dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-                    sleep 10  # Wait for Docker daemon to initialize
-                    echo "Checking if Docker is running..."
-                    docker info || (echo "Docker is NOT running!" && exit 1)
-                    tail -f /dev/null  # Keep container alive
-                tty: true
-                volumeMounts:
-                  - name: docker-sock
-                    mountPath: /var/run/docker.sock
-                  - name: docker-storage
-                    mountPath: /var/lib/docker
-                  - name: workspace-volume
-                    mountPath: /home/jenkins/agent
-                    readOnly: false
-              volumes:
-                - name: docker-sock
-                  hostPath:
-                    path: /var/run/docker.sock
-                    type: Socket
-                - name: docker-storage
-                  emptyDir: {}
-                - name: workspace-volume
-                  emptyDir: {}
-            """
+        docker {
+            image: node:22.13.1-alpine3.21
         }
     }
 
