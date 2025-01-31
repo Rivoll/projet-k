@@ -11,7 +11,7 @@ spec:
           - path: applications-charts/*/values/*.yaml  # Watch all values files in all apps
   template:
     metadata:
-      name: "{{ path[1] }}-{{ path.filename | replace: '.yaml', '' }}"  # appname-env (e.g., myapp-staging)
+      name: "{{path[1]}}-{{path.filenameNormalized}}"  # appname-env (e.g., myapp-staging)
     spec:
       project: default
       source:
@@ -23,7 +23,7 @@ spec:
             - "values/{{path.filenameNormalized}}"  # Use matching values file (e.g., staging.yaml)
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path[1]}}-{{ path.filename | replace: '.yaml', '' }}"  # appname-env
+        namespace: "{{path[1]}}-{{path.filenameNormalized}}"  # appname-env
       syncPolicy:
         automated:
           prune: true
