@@ -13,12 +13,12 @@ spec:
       image: jenkins/inbound-agent:latest
       tty: true
     - name: docker
-      image: docker:24-dind  # ✅ Use official Docker image
+      image: docker:24-dind  # ✅ Use official Docker image with Docker installed
       command:
         - "sh"
         - "-c"
         - |
-          apk add --no-cache aws-cli
+          apk add --no-cache aws-cli bash curl
           dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
           sleep 15  # Wait for Docker
           tail -f /dev/null
@@ -63,6 +63,26 @@ spec:
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                container('docker') {
+                    script {
+                        echo "✅ Running Tests..."
+                        
+                        // Run the tests from the run-test.sh script
+                        sh 'chmod +x source/myapp/run-test.sh'
+                        def testExitCode = sh(script: 'source/myapp/run-test.sh', returnStatus: true)
+                        
+                        if (testExitCode != 0) {
+                            error("❌ Tests failed, noob!")
+                        }
+
+                        echo "✅ Tests passed successfully!"
+                    }
+                }
+            }
+        }
+
         stage('Push Image to ECR') {
             steps {
                 container('docker') {
@@ -81,7 +101,7 @@ spec:
 
     post {
         success {
-            echo "✅ Image successfully pushed: ${ECR_REPO}:${IMAGE_TAG}"
+            echo "🚀 Image successfully pushed: ${ECR_REPO}:${IMAGE_TAG}"
         }
         failure {
             echo "❌ CI pipeline failed."
