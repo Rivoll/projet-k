@@ -57,7 +57,7 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker build -t ${ECR_REPO}:staging-${IMAGE_TAG} source/myapp/'
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} source/myapp/'
                     }
                 }
             }
@@ -70,7 +70,7 @@ spec:
                         script {
                             sh """
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
-                                docker push ${ECR_REPO}:staging-${IMAGE_TAG}
+                                docker push ${ECR_REPO}:${IMAGE_TAG}
                             """
                         }
                     }
