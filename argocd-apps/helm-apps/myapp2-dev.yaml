@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp
+  name: myapp2-dev
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/Rivoll/projet-k/
     targetRevision: HEAD
-    path: applications-charts/myapp
+    path: applications-charts/myapp2
     helm:
       valueFiles:
       - dev-values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: myapp-dev
+    namespace: myapp2-dev
   syncPolicy:
     automated:
       prune: true
