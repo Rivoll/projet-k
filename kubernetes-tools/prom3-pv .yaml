@@ -9,5 +9,3 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ebs-sc
-  hostPath:
-    path: "/mnt/data"
