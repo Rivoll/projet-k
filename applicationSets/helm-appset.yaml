@@ -5,27 +5,32 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: "https://github.com/Rivoll/projet-k"
+        repoURL: https://github.com/Rivoll/projet-k.git
         revision: main
-        directories:
-          - path: "applications-charts/*"
+        files:
+          - path: applications-charts/*/values/*.yaml  # Watch all values files in all apps
   template:
     metadata:
-      name: "{{path.basename}}" # App name = directory name
+      name: "{{path[1]}}-{{path.basename}}"  # appname-env (e.g., myapp-staging)
     spec:
       project: default
       source:
-        repoURL: "git@github.com:Rivoll/projet-k.git"
+        repoURL: https://github.com/Rivoll/projet-k.git
         targetRevision: main
-        path: "applications-charts/{{path.basename}}"
+        path: applications-charts/{{path[1]}}  # Path to each Helm chart
         helm:
           valueFiles:
-            - "values.yaml"
-            - "{{path.basename}}-values.yaml"  # Dynamically load values from `myapp-values.yaml`
+            - "values/{{path.basename}}"  # Use matching values file (e.g., staging.yaml)
       destination:
-        server: "https://kubernetes.default.svc"
-        namespace: "{{path.basename}}"
+        server: https://kubernetes.default.svc
+        namespace: "{{path[1]}}-{{path.basename | split: '.' | first }}"  # appname-env
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+  retry:
+    limit: 3  # Retry 3 times if deployment fails
+    backoff:
+      duration: 5s
+      factor: 2
+      maxDuration: 3m
