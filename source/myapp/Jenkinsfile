@@ -23,9 +23,10 @@ pipeline {
                     apk add --no-cache shadow
                     groupadd -g 999 docker || true
                     usermod -aG docker jenkins || true
-                    dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 & 
+                    dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
                     sleep 10  # Wait for Docker daemon to initialize
-                    docker info  # Check if Docker daemon is running
+                    echo "Checking if Docker is running..."
+                    docker info || (echo "Docker is NOT running!" && exit 1)
                     tail -f /dev/null  # Keep container alive
                 tty: true
                 volumeMounts:
@@ -38,7 +39,9 @@ pipeline {
                     readOnly: false
               volumes:
                 - name: docker-sock
-                  emptyDir: {}  # Use emptyDir for better isolation
+                  hostPath:
+                    path: /var/run/docker.sock
+                    type: Socket
                 - name: docker-storage
                   emptyDir: {}
                 - name: workspace-volume
@@ -58,11 +61,11 @@ pipeline {
     stages {
         stage('Build and Test') {
             steps {
-                container('docker') {  // Ensure we run inside the "docker" container
+                container('docker') {
                     script {
-                        sh 'docker version'  // Check Docker daemon is working
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  // Build Image
-                        sh 'run-test.sh'  // Run tests if needed
+                        sh 'docker version'  # Check Docker daemon is working
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  # Build Image
+                        sh 'run-test.sh'  # Run tests if needed
                     }
                 }
             }
@@ -73,9 +76,7 @@ pipeline {
                 container('docker') {
                     withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
                         script {
-                            // Authenticate with ECR
                             sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                            // Push the Docker image to ECR
                             sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
                         }
                     }
@@ -89,9 +90,7 @@ pipeline {
                     sh """
                     git clone ${K8S_MANIFESTS_REPO} k8s-manifests
                     cd k8s-manifests/applications-charts/myapp
-                    # Update image tag in values.yaml
                     sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
-                    # Commit changes
                     git config user.email "${GIT_USER_EMAIL}"
                     git config user.name "Jenkins"
                     git add staging-values.yaml
@@ -105,7 +104,7 @@ pipeline {
 
     post {
         success {
-            echo " CI pipeline succeeded! Image pushed and Kubernetes manifests updated."
+            echo "CI pipeline succeeded! Image pushed and Kubernetes manifests updated."
         }
         failure {
             echo " CI pipeline failed."
