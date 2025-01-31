@@ -1,14 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{.Values.app.name}}-{{.Values.env}}-svc
+  name: {{ .Values.app.name }}-{{ .Values.env }}-svc
   namespace: {{ .Release.Namespace }} 
 spec:
   selector:
-    app: {{.Values.app.name}}-{{.Values.env}}
+    app: {{ .Values.app.name }}-{{ .Values.env }}
   ports:
     - protocol: TCP
-      port: {{ .Values.port }}  # Port exposé dans le cluster
-      targetPort: 80  # Port sur lequel le conteneur écoute
-      nodePort: {{ .Values.nodePort }}  # Port exposé sur chaque nœud du cluster
-  type: NodePort
+      port: {{ .Values.port }}  # Port exposed in the cluster
+      targetPort: 80  # Port the container listens on
+      {{- if eq .Values.serviceType "NodePort" }}
+      nodePort: {{ .Values.nodePort }}  # Exposed on each node ONLY IF serviceType is NodePort
+      {{- end }}
+  type: {{ .Values.serviceType }}
