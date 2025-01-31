@@ -6,8 +6,8 @@ set -e
 echo "Starting test script for static HTML site..."
 
 # Step 1: Check if the HTML files exist
-if [ ! -d "./src/html" ] || [ -z "$(ls -A ./src/html)" ]; then
-    echo "Error: HTML files are missing in ./src/html"
+if [ ! -d "/usr/share/nginx/html" ] || [ -z "$(ls -A /usr/share/nginx/html)" ]; then
+    echo "Error: HTML files are missing in /usr/share/nginx/html"
     exit 1
 else
     echo "HTML files found."
@@ -16,7 +16,7 @@ fi
 # Step 2: Validate HTML syntax using an HTML linter (optional)
 echo "Validating HTML files..."
 if command -v tidy &>/dev/null; then
-    for file in ./src/html/*.html; do
+    for file in /usr/share/nginx/html/*.html; do
         echo "Checking $file"
         tidy -q -e "$file"
     done
