@@ -13,14 +13,14 @@ spec:
       image: jenkins/inbound-agent:latest
       tty: true
     - name: docker
-      image: amazonlinux:latest  # ✅ Use Amazon Linux with AWS CLI
+      image: docker:24-dind  # ✅ Use official Docker image
       command:
         - "sh"
         - "-c"
         - |
-          yum install -y docker aws-cli
+          apk add --no-cache aws-cli
           dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-          sleep 15
+          sleep 15  # Wait for Docker
           tail -f /dev/null
       securityContext:
         privileged: true
@@ -57,7 +57,7 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} source/myapp/'
+                        sh 'docker build -t ${ECR_REPO}:staging-${IMAGE_TAG} source/myapp/'
                     }
                 }
             }
