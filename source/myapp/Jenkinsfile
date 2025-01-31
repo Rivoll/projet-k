@@ -1,7 +1,23 @@
 pipeline {
     agent {
         kubernetes {
-            agentContainer
+            yaml """
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          labels:
+            some-label: jenkins-agent
+        spec:
+          containers:
+          - name: jnlp
+            image: jenkins/inbound-agent:latest
+            tty: true
+          - name: docker
+            image: docker:20.10
+            command:
+            - cat
+            tty: true
+        """
         }
     }
 
