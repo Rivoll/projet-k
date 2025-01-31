@@ -5,4 +5,4 @@ port: 80
 nodePort: 30002
 image:
   repository: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp
-  tag: staging-65
+  tag: staging-66
