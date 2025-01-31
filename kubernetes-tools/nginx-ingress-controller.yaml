@@ -69,7 +69,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: myapp-dev-service  # Match the service of your app
+                name: myapp-svc  # Match the service of your app
                 port:
                   number: 80
           - path: /myapp-staging

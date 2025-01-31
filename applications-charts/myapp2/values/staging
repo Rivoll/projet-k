@@ -1,4 +1,5 @@
 replicaCount: 3
+env: staging
 namespace: staging
 port: 80
 nodePort: 30011

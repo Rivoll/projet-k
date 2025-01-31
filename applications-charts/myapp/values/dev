@@ -1,5 +1,6 @@
 name: myapp-dev
 replicaCount: 2
+env: dev
 namespace: dev
 port: 80
 nodePort: 30001

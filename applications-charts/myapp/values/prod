@@ -1,5 +1,6 @@
 name: myapp-prod
 replicaCount: 3
+env: prod
 namespace: prod
 port: 80
 nodePort: 30003
