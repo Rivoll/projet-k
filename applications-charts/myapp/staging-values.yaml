@@ -1,3 +1,4 @@
+name: myapp-staging
 replicaCount: 3
 namespace: staging
 port: 80

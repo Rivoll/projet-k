@@ -1,3 +1,4 @@
+name: myapp-prod
 replicaCount: 3
 namespace: prod
 port: 80
