@@ -13,9 +13,9 @@ spec:
       image: jenkins/inbound-agent:latest
       tty: true
     - name: docker
-      image: docker:24-dind  # Latest stable Docker-in-Docker image
+      image: docker:24-dind
       securityContext:
-        privileged: true  # Required for Docker-in-Docker
+        privileged: true
       tty: true
       command:
         - dockerd
@@ -51,7 +51,8 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker build -t myapp:latest .'  // Build Docker image
+                        sh 'ls -la'  // Debugging: List workspace files
+                        sh 'docker build -t myapp:latest .'  // Ensure the build context is correct
                     }
                 }
             }
