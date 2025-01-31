@@ -1,37 +1,36 @@
----
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: nginx-ingress-controller
+  name: myapp-ingress
   namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: nginx-ingress-controller
-  template:
-    metadata:
-      labels:
-        app: nginx-ingress-controller
-    spec:
-      containers:
-        - name: nginx-ingress-controller
-          image: k8s.gcr.io/ingress-nginx/controller:v1.7.0  # Ensure this image is correct
-          ports:
-            - name: http
-              containerPort: 80
-            - name: https
-              containerPort: 443
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /myapp-dev
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-dev-svc  # Matches APP_NAME-ENV-svc convention
+                port:
+                  number: 80
+          - path: /myapp-staging
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-staging-svc
+                port:
+                  number: 80
+          - path: /myapp-prod
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-prod-svc
+                port:
+                  number: 80
 ---
 apiVersion: v1
 kind: Service
@@ -46,51 +45,9 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30100  # 🔥 Expose on NodePort 30100
+      nodePort: 30100  # ✅ Use NodePort 30100 for external access
     - name: https
       protocol: TCP
       port: 443
       targetPort: 443
-  type: NodePort  # 🔥 Set service type to NodePort
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: myapp-ingress
-  namespace: ingress-nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /  # 🔥 Ensures correct path handling
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /myapp-dev
-            pathType: Prefix
-            backend:
-              service:
-                name: myapp-svc  # Match the service of your app
-                port:
-                  number: 80
-          - path: /myapp-staging
-            pathType: Prefix
-            backend:
-              service:
-                name: myapp-staging-service
-                port:
-                  number: 80
-          - path: /myapp2-dev
-            pathType: Prefix
-            backend:
-              service:
-                name: myapp2-dev-service
-                port:
-                  number: 80
-          - path: /myapp2-staging
-            pathType: Prefix
-            backend:
-              service:
-                name: myapp2-staging-service
-                port:
-                  number: 80
-  ingressClassName: nginx  # 🔥 Ensure you are using the correct Ingress controller
+  type: NodePort  # ✅ Exposes on worker nodes via 30100
