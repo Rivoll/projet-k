@@ -11,14 +11,14 @@ spec:
           - path: applications-charts/*/values/*.yaml  # Watch all values files in all apps
   template:
     metadata:
-      name: "{{path[1]}}-{{path[3] | split: '.' | first }}"  # appname-env (e.g., myapp-staging)
+      name: "kl"  # appname-env (e.g., myapp-staging)
     spec:
       project: default
       source:
         repoURL: https://github.com/Rivoll/projet-k.git
         targetRevision: main
         path: applications-charts/{{path[1]}}  # Path to each Helm chart
-        helm:
+        helm
           valueFiles:
             - "values/{{path[3]}}"  # Use matching values file (e.g., staging.yaml)
       destination:
