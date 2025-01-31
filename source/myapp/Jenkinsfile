@@ -1,40 +1,44 @@
 pipeline {
     agent {
         docker {
-            image "docker:20.10"
-            args "--privileged -v /var/run/docker.sock:/var/run/docker.sock"
+            image 'docker:20.10'  // Official Docker image
+            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'  // Access host Docker
         }
     }
 
     environment {
         AWS_DEFAULT_REGION = 'eu-west-3' 
         ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp"
-        IMAGE_TAG = "${BUILD_NUMBER}"  
-        K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git' // Use SSH instead of HTTPS
-        GIT_USER_EMAIL = 'pkeita@student.42.fr' // Store email in Jenkins Credentials
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git'
+        GIT_USER_EMAIL = 'pkeita@student.42.fr'
     }
 
     stages {
+        stage('Check Docker') {
+            steps {
+                script {
+                    sh 'docker --version'  // Verify Docker is available
+                    sh 'docker ps'         // Check Docker can run
+                }
+            }
+        }
+
         stage('Build and Test') {
             steps {
-                container('docker') {
-                    script {
-                        sh 'docker version' // Check Docker daemon is working
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .' // Build Image
-                        sh 'run-test.sh'  // Run tests if needed
-                    }
+                script {
+                    sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  // Build image
+                    sh 'chmod +x run-test.sh && ./run-test.sh'       // Run tests
                 }
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                container('docker') {
-                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
-                        script {
-                            sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                            sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
-                        }
+                withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
+                    script {
+                        sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
+                        sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
                     }
                 }
             }
@@ -60,10 +64,10 @@ pipeline {
 
     post {
         success {
-            echo "CI pipeline succeeded! Image pushed and Kubernetes manifests updated."
+            echo " CI pipeline succeeded! Image pushed and Kubernetes manifests updated."
         }
         failure {
-            echo " CI pipeline failed."
+            echo "CI pipeline failed."
         }
     }
 }
