@@ -4,27 +4,27 @@ metadata:
   name: myapp-ingress
   namespace: ingress-nginx
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1  # ✅ Fix path forwarding
+    nginx.ingress.kubernetes.io/rewrite-target: /  # ✅ Ensure correct path forwarding
 spec:
   ingressClassName: nginx
   rules:
     - http:
         paths:
-          - path: /myapp-dev(/|$)(.*)
+          - path: /myapp-dev  # ✅ No regex
             pathType: Prefix
             backend:
               service:
                 name: myapp-dev-svc
                 port:
                   number: 80
-          - path: /myapp-staging(/|$)(.*)
+          - path: /myapp-staging  # ✅ No regex
             pathType: Prefix
             backend:
               service:
                 name: myapp-staging-svc
                 port:
                   number: 80
-          - path: /myapp-prod(/|$)(.*)
+          - path: /myapp-prod  # ✅ No regex
             pathType: Prefix
             backend:
               service:
