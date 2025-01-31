@@ -21,9 +21,11 @@ pipeline {
               - "-c"
               - |
                 apk add --no-cache shadow
-                groupadd -g 999 docker
-                usermod -aG docker jenkins
-                dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2
+                groupadd -g 999 docker || true
+                usermod -aG docker jenkins || true
+                dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
+                sleep 5
+                tail -f /dev/null
             tty: true
             volumeMounts:
               - name: docker-sock
@@ -32,15 +34,12 @@ pipeline {
                 mountPath: /var/lib/docker
           volumes:
             - name: docker-sock
-              hostPath:
-                path: /var/run/docker.sock
-                type: Socket
+              emptyDir: {}
             - name: docker-storage
               emptyDir: {}
         """
         }
     }
-
 
     environment {
         AWS_DEFAULT_REGION = 'eu-west-3' 
@@ -53,23 +52,24 @@ pipeline {
     stages {
         stage('Build and Test') {
             steps {
-                script {
-                    // Build the Docker image
-                    sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
-                    // Run tests
-                    sh 'run-test.sh'  
+                container('docker') {
+                    script {
+                        sh 'docker version'
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
+                        sh 'run-test.sh'
+                    }
                 }
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
-                    script {
-                        // Authenticate with ECR
-                        sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                        // Push the Docker image to ECR
-                        sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                container('docker') {
+                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
+                        script {
+                            sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
+                            sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                        }
                     }
                 }
             }
@@ -81,9 +81,7 @@ pipeline {
                     sh """
                     git clone ${K8S_MANIFESTS_REPO} k8s-manifests
                     cd k8s-manifests/applications-charts/myapp
-                    # Update image tag in values.yaml
                     sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
-                    # Commit changes
                     git config user.email "${GIT_USER_EMAIL}"
                     git config user.name "Jenkins"
                     git add staging-values.yaml
