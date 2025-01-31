@@ -8,7 +8,7 @@ spec:
         repoURL: https://github.com/Rivoll/projet-k.git
         revision: main
         files:
-          - path: applications-charts/*/values/*.yaml  # Watch all values files in all apps
+          - path: applications-charts/*/values/*  # Watch all values files in all apps
   template:
     metadata:
       name: "{{path[1]}}-{{path.filenameNormalized}}"  # appname-env (e.g., myapp-staging)
