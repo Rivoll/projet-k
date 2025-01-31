@@ -57,8 +57,7 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'ls -la'  // Debugging: List files to check if Dockerfile exists
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  // Build image
+                        sh 'docker build -t ${ECR_REPO}:staging-${IMAGE_TAG} source/myapp/'  // Build image
                     }
                 }
             }
