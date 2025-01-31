@@ -1,8 +1,40 @@
 pipeline {
     agent {
-        docker {
-            image 'docker:20.10'  // Official Docker image
-            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'  // Access host Docker
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins-agent: "true"
+spec:
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    tty: true
+  - name: docker
+    image: docker:20.10-dind  # Use Docker-in-Docker
+    securityContext:
+      privileged: true  # Allow running Docker daemon
+    command:
+      - "sh"
+      - "-c"
+      - |
+        dockerd-entrypoint.sh --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
+        sleep 10  # Wait for Docker to initialize
+        tail -f /dev/null  # Keep container alive
+    tty: true
+    volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run/docker.sock
+      - name: docker-storage
+        mountPath: /var/lib/docker
+  volumes:
+    - name: docker-sock
+      emptyDir: {}  # Mounts Docker socket inside the pod
+    - name: docker-storage
+      emptyDir: {}  # Temporary Docker storage inside the pod
+"""
         }
     }
 
@@ -15,30 +47,36 @@ pipeline {
     }
 
     stages {
-        stage('Check Docker') {
+        stage('Verify Docker') {
             steps {
-                script {
-                    sh 'docker --version'  // Verify Docker is available
-                    sh 'docker ps'         // Check Docker can run
+                container('docker') {  // Run inside Docker container
+                    script {
+                        sh 'docker --version'  # Check if Docker is available
+                        sh 'docker ps'         # List running containers
+                    }
                 }
             }
         }
 
         stage('Build and Test') {
             steps {
-                script {
-                    sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  // Build image
-                    sh 'chmod +x run-test.sh && ./run-test.sh'       // Run tests
+                container('docker') {  
+                    script {
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  
+                        sh 'chmod +x run-test.sh && ./run-test.sh'  
+                    }
                 }
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
-                    script {
-                        sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                        sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                container('docker') {
+                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
+                        script {
+                            sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
+                            sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                        }
                     }
                 }
             }
@@ -46,17 +84,19 @@ pipeline {
 
         stage('Update Kubernetes Manifests') {
             steps {
-                sshagent(['github-ssh-key']) {
-                    sh """
-                    git clone ${K8S_MANIFESTS_REPO} k8s-manifests
-                    cd k8s-manifests/applications-charts/myapp
-                    sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
-                    git config user.email "${GIT_USER_EMAIL}"
-                    git config user.name "Jenkins"
-                    git add staging-values.yaml
-                    git commit -m "Update image tag to ${IMAGE_TAG}"
-                    git push origin main
-                    """
+                container('docker') {
+                    sshagent(['github-ssh-key']) {
+                        sh """
+                        git clone ${K8S_MANIFESTS_REPO} k8s-manifests
+                        cd k8s-manifests/applications-charts/myapp
+                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
+                        git config user.email "${GIT_USER_EMAIL}"
+                        git config user.name "Jenkins"
+                        git add staging-values.yaml
+                        git commit -m "Update image tag to ${IMAGE_TAG}"
+                        git push origin main
+                        """
+                    }
                 }
             }
         }
@@ -64,10 +104,10 @@ pipeline {
 
     post {
         success {
-            echo " CI pipeline succeeded! Image pushed and Kubernetes manifests updated."
+            echo '🎉 CI pipeline succeeded! Image pushed and Kubernetes manifests updated.'
         }
         failure {
-            echo "CI pipeline failed."
+            echo '❌ CI pipeline failed.'
         }
     }
 }
