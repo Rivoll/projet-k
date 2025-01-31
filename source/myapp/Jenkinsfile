@@ -13,24 +13,19 @@ pipeline {
             image: jenkins/inbound-agent:latest
             tty: true
           - name: docker
-            image: docker:20.10
+            image: docker:dind
             command:
-            - cat
-            tty: true
+            - dockerd-entrypoint.sh
             securityContext:
               privileged: true
+            tty: true
             volumeMounts:
             - mountPath: /var/run/docker.sock
               name: docker-sock
-            - mountPath: /usr/bin/docker
-              name: docker-bin
           volumes:
           - name: docker-sock
             hostPath:
               path: /var/run/docker.sock
-          - name: docker-bin
-            hostPath:
-              path: /usr/bin/docker
         """
         }
     }
