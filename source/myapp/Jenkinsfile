@@ -52,7 +52,7 @@ spec:
                 container('docker') {
                     script {
                         sh 'ls -la'  // Debugging: List workspace files
-                        sh ' build -t myapp:latest source/myapp/docker'  // Ensure the build context is correct
+                        sh ' build -t myapp:latest source/myapp/'  // Ensure the build context is correct
                     }
                 }
             }
