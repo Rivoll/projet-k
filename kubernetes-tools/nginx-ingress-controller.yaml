@@ -1,10 +1,11 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-ingress-controller
   namespace: ingress-nginx
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: nginx-ingress-controller
@@ -15,13 +16,12 @@ spec:
     spec:
       containers:
         - name: nginx-ingress-controller
-          image: k8s.gcr.io/ingress-nginx/controller:v1.7.0  # Ensure you're using the correct image
+          image: k8s.gcr.io/ingress-nginx/controller:v1.7.0  # Ensure this image is correct
           ports:
             - name: http
               containerPort: 80
             - name: https
               containerPort: 443
-          # You may also add environment variables if needed
           env:
             - name: POD_NAME
               valueFrom:
@@ -31,7 +31,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-
 
 ---
 apiVersion: v1
@@ -43,12 +42,55 @@ spec:
   selector:
     app: nginx-ingress-controller
   ports:
-    - name: http  # Nom pour le port 80
+    - name: http
       protocol: TCP
       port: 80
       targetPort: 80
-    - name: https  # Nom pour le port 443
+      nodePort: 30100  # 🔥 Expose on NodePort 30100
+    - name: https
       protocol: TCP
       port: 443
       targetPort: 443
-  type: LoadBalancer
+  type: NodePort  # 🔥 Set service type to NodePort
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+  namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /  # 🔥 Ensures correct path handling
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /myapp-dev
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-dev-service  # Match the service of your app
+                port:
+                  number: 80
+          - path: /myapp-staging
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-staging-service
+                port:
+                  number: 80
+          - path: /myapp2-dev
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp2-dev-service
+                port:
+                  number: 80
+          - path: /myapp2-staging
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp2-staging-service
+                port:
+                  number: 80
+  ingressClassName: nginx  # 🔥 Ensure you are using the correct Ingress controller
