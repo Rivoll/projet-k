@@ -6,7 +6,7 @@ pipeline {
         kind: Pod
         metadata:
           labels:
-            some-label: jenkins-agent
+            jenkins-agent: "true"
         spec:
           containers:
           - name: jnlp
@@ -17,6 +17,20 @@ pipeline {
             command:
             - cat
             tty: true
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-sock
+            - mountPath: /usr/bin/docker
+              name: docker-bin
+          volumes:
+          - name: docker-sock
+            hostPath:
+              path: /var/run/docker.sock
+          - name: docker-bin
+            hostPath:
+              path: /usr/bin/docker
         """
         }
     }
