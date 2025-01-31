@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.app.name}}-{{.Values.env}}}
+  name: {{.Values.app.name}}-{{.Values.env}}
   namespace: {{ .Release.Namespace }} 
 spec:
   replicas: {{.Values.replicaCount}}
   selector:
     matchLabels:
-      app: {{.Values.app.name}}-{{.Values.env}}}
+      app: {{.Values.app.name}}-{{.Values.env}}
   template:
     metadata:
       labels:
-        app: {{.Values.app.name}}-{{.Values.env}}}
+        app: {{.Values.app.name}}-{{.Values.env}}
     spec:
       containers:
-      - name: {{.Values.app.name}}-{{.Values.env}}}
+      - name: {{.Values.app.name}}-{{.Values.env}}
         image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }}
         ports:
         - containerPort: 80
