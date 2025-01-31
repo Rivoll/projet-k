@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-             yaml """
+            yaml """
         apiVersion: v1
         kind: Pod
         metadata:
@@ -16,10 +16,13 @@ pipeline {
             image: docker:20.10-dind
             securityContext:
               privileged: true
-            command: ["dockerd-entrypoint.sh"]
-            args:
-              - "--host=unix:///var/run/docker.sock"
-              - "--storage-driver=vfs"
+            command:
+              - "sh"
+              - "-c"
+              - |
+                addgroup -S docker
+                adduser -S jenkins docker
+                dockerd-entrypoint.sh --host=unix:///var/run/docker.sock --storage-driver=overlay2
             tty: true
             volumeMounts:
               - name: docker-sock
@@ -28,9 +31,9 @@ pipeline {
                 mountPath: /var/lib/docker
           volumes:
             - name: docker-sock
-              emptyDir: {}  # Use emptyDir for Docker socket
+              emptyDir: {}
             - name: docker-storage
-              emptyDir: {}  # Use emptyDir for Docker storage
+              emptyDir: {}
         """
         }
     }
