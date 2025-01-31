@@ -13,14 +13,15 @@ spec:
       image: jenkins/inbound-agent:latest
       tty: true
     - name: docker
-      image: docker:24-dind  # ✅ Use official Docker image with Docker installed
+      image: docker:24-dind
       command:
         - "sh"
         - "-c"
         - |
-          apk add --no-cache aws-cli bash curl
+          apk add --no-cache aws-cli git openssh bash curl
           dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-          sleep 15  # Wait for Docker
+          sleep 20  # Ensure Docker is fully initialized
+          while(! docker info > /dev/null 2>&1); do sleep 1; done
           tail -f /dev/null
       securityContext:
         privileged: true
@@ -69,12 +70,11 @@ spec:
                     script {
                         echo "✅ Running Tests..."
                         
-                        // Run the tests from the run-test.sh script
                         sh 'chmod +x source/myapp/run-test.sh'
                         def testExitCode = sh(script: 'source/myapp/run-test.sh', returnStatus: true)
                         
                         if (testExitCode != 0) {
-                            error("❌ Tests failed, noob!")
+                            error("❌ Tests failed, stopping pipeline!")
                         }
 
                         echo "✅ Tests passed successfully!"
@@ -89,7 +89,11 @@ spec:
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
                         script {
                             sh """
+                                set -e
+                                echo "🔐 Logging into AWS ECR..."
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
+
+                                echo "🚀 Pushing Docker image to ECR..."
                                 docker push ${ECR_REPO}:${IMAGE_TAG}
                             """
                         }
@@ -97,38 +101,40 @@ spec:
                 }
             }
         }
+
         stage('Update Image Tag in Staging Values') {
             steps {
-            script {
-                sshagent(['github-ssh-key']) {
-                    sh """
-                    # Clone the repository
-                    git clone git@github.com:Rivoll/projet-k.git staging-repo
-                    cd staging-repo/applications-charts/myapp
+                script {
+                    sshagent(['github-ssh-key']) {
+                        sh """
+                        set -e
+                        echo "🔄 Cloning repository..."
+                        GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no' git clone git@github.com:Rivoll/projet-k.git staging-repo
+                        cd staging-repo/applications-charts/myapp
 
-                    # Update the image tag in staging-values.yaml
-                    sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
+                        echo "📝 Updating image tag in staging-values.yaml..."
+                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
 
-                    # Commit and push changes
-                    git config user.email "patrick.keita@outlook.com"
-                    git config user.name "Jenkins"
-                    git add staging-values.yaml
-                    git commit -m "Update image tag to ${IMAGE_TAG}"
-                    git push origin main
-                    """
+                        echo "📤 Pushing changes to GitHub..."
+                        git config user.email "patrick.keita@outlook.com"
+                        git config user.name "Jenkins"
+                        git add staging-values.yaml
+                        git commit -m "🚀 Update image tag to ${IMAGE_TAG}"
+                        git push origin main
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
     }
 
     post {
         success {
-            echo "🚀 Image successfully pushed: ${ECR_REPO}:${IMAGE_TAG}"
+            echo "✅ CI/CD Pipeline successfully completed!"
+            echo "🚀 Image pushed: ${ECR_REPO}:${IMAGE_TAG}"
         }
         failure {
-            echo "❌ CI pipeline failed."
+            echo "❌ CI/CD Pipeline failed. Check logs for details."
         }
     }
 }
