@@ -20,9 +20,10 @@ pipeline {
               - "sh"
               - "-c"
               - |
-                addgroup -S docker
-                adduser -S jenkins docker
-                dockerd-entrypoint.sh --host=unix:///var/run/docker.sock --storage-driver=overlay2
+                apk add --no-cache shadow
+                groupadd -g 999 docker
+                usermod -aG docker jenkins
+                dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2
             tty: true
             volumeMounts:
               - name: docker-sock
@@ -31,7 +32,9 @@ pipeline {
                 mountPath: /var/lib/docker
           volumes:
             - name: docker-sock
-              emptyDir: {}
+              hostPath:
+                path: /var/run/docker.sock
+                type: Socket
             - name: docker-storage
               emptyDir: {}
         """
