@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-prod
+  name: myapp-staging
   namespace: argocd
 spec:
   project: default
@@ -11,13 +11,13 @@ spec:
     path: applications-charts/myapp
     helm:
       valueFiles:
-      - prod-values.yaml
+      - staging-values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: myapp-prod
+    namespace: myapp-staging
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
 
-valueFiles: prod-values.yaml
+valueFiles: staging-values.yaml
