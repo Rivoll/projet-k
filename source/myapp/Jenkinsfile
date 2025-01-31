@@ -63,9 +63,9 @@ pipeline {
             steps {
                 container('docker') {
                     script {
-                        sh 'docker version'  # Check Docker daemon is working
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  # Build Image
-                        sh 'run-test.sh'  # Run tests if needed
+                        sh 'docker version' // Check Docker daemon is working
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .' // Build Image
+                        sh 'run-test.sh'  // Run tests if needed
                     }
                 }
             }
