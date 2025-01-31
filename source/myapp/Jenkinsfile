@@ -31,4 +31,83 @@ spec:
         mountPath: /var/lib/docker
   volumes:
     - name: docker-sock
-      emptyDir
+      emptyDir: {}
+    - name: docker-storage
+      emptyDir: {}
+"""
+        }
+    }
+
+    environment {
+        AWS_DEFAULT_REGION = 'eu-west-3' 
+        ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git'
+        GIT_USER_EMAIL = 'pkeita@student.42.fr'
+    }
+
+    stages {
+        stage('Verify Docker') {
+            steps {
+                container('docker') {
+                    script {
+                        sh 'docker --version' // Check if Docker is available
+                        sh 'docker ps' // List running containers
+                    }
+                }
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                container('docker') {  
+                    script {
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  
+                        sh 'chmod +x run-test.sh && ./run-test.sh'  
+                    }
+                }
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                container('docker') {
+                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
+                        script {
+                            sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
+                            sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Update Kubernetes Manifests') {
+            steps {
+                container('docker') {
+                    sshagent(['github-ssh-key']) {
+                        sh """
+                        git clone ${K8S_MANIFESTS_REPO} k8s-manifests
+                        cd k8s-manifests/applications-charts/myapp
+                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
+                        git config user.email "${GIT_USER_EMAIL}"
+                        git config user.name "Jenkins"
+                        git add staging-values.yaml
+                        git commit -m "Update image tag to ${IMAGE_TAG}"
+                        git push origin main
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 CI pipeline succeeded! Image pushed and Kubernetes manifests updated.'
+        }
+        failure {
+            echo '❌ CI pipeline failed.'
+        }
+    }
+}
