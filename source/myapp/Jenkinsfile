@@ -38,7 +38,7 @@ spec:
     environment {
         AWS_REGION = "eu-west-3"
         ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG = "staging-${BUILD_NUMBER}"
     }
 
     stages {
@@ -46,8 +46,8 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker --version'   // Check Docker version
-                        sh 'docker ps'         // Ensure daemon is running
+                        sh 'docker --version'
+                        sh 'docker ps'
                     }
                 }
             }
@@ -57,7 +57,8 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker build -t ${ECR_REPO}:staging-${IMAGE_TAG} source/myapp/'  // Build image
+                        sh 'ls -la'  // Check Dockerfile presence
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} source/myapp/'
                     }
                 }
             }
@@ -66,7 +67,7 @@ spec:
         stage('Push Image to ECR') {
             steps {
                 container('docker') {
-                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_REGION}") {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
                         script {
                             sh """
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
@@ -81,7 +82,7 @@ spec:
 
     post {
         success {
-            echo "✅ Image pushed successfully: ${ECR_REPO}:${IMAGE_TAG}"
+            echo "✅ Image successfully pushed: ${ECR_REPO}:${IMAGE_TAG}"
         }
         failure {
             echo "❌ CI pipeline failed."
