@@ -35,24 +35,45 @@ spec:
         }
     }
 
+    environment {
+        AWS_REGION = "eu-west-3"
+        ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
     stages {
         stage('Verify Docker') {
             steps {
                 container('docker') {
                     script {
-                        sh 'docker --version'   // Check if Docker is installed
-                        sh 'docker ps'         // Ensure the daemon is running
+                        sh 'docker --version'   // Check Docker version
+                        sh 'docker ps'         // Ensure daemon is running
                     }
                 }
             }
         }
 
-        stage('Build and Test') {
+        stage('Build Image') {
             steps {
                 container('docker') {
                     script {
-                        sh 'ls -la'  // Debugging: List workspace files
-                        sh 'docker build -t myapp:latest source/myapp/'  // Ensure the build context is correct
+                        sh 'ls -la'  // Debugging: List files to check if Dockerfile exists
+                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  // Build image
+                    }
+                }
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                container('docker') {
+                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_REGION}") {
+                        script {
+                            sh """
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
+                                docker push ${ECR_REPO}:${IMAGE_TAG}
+                            """
+                        }
                     }
                 }
             }
@@ -61,7 +82,7 @@ spec:
 
     post {
         success {
-            echo "✅ CI pipeline succeeded!"
+            echo "✅ Image pushed successfully: ${ECR_REPO}:${IMAGE_TAG}"
         }
         failure {
             echo "❌ CI pipeline failed."
