@@ -5,7 +5,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: "git@github.com:Rivoll/projet-k.git"
+        repoURL: "https://github.com/Rivoll/projet-k"
         revision: main
         directories:
           - path: "applications-charts/*"
