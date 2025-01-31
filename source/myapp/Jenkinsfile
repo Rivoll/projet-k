@@ -97,6 +97,30 @@ spec:
                 }
             }
         }
+        stage('Update Image Tag in Staging Values') {
+            steps {
+            script {
+                sshagent(['github-ssh-key']) {
+                    sh """
+                    # Clone the repository
+                    git clone git@github.com:Rivoll/projet-k.git staging-repo
+                    cd staging-repo/applications-charts/myapp
+
+                    # Update the image tag in staging-values.yaml
+                    sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
+
+                    # Commit and push changes
+                    git config user.email "patrick.keita@outlook.com"
+                    git config user.name "Jenkins"
+                    git add staging-values.yaml
+                    git commit -m "Update image tag to ${IMAGE_TAG}"
+                    git push origin main
+                    """
+            }
+        }
+    }
+}
+
     }
 
     post {
