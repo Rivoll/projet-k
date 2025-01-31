@@ -15,17 +15,21 @@ pipeline {
           - name: docker
             image: docker:20.10-dind
             command:
-            - dockerd
+            - "sh"
+            - "-c"
+            - |
+              dockerd-entrypoint.sh --host=unix:///var/run/docker.sock --storage-driver=vfs &
+              sleep 3
+              exec tail -f /dev/null
             securityContext:
               privileged: true
             tty: true
             volumeMounts:
-            - mountPath: /var/run/docker.sock
-              name: docker-sock
-          volumes:
-          - name: docker-sock
-            hostPath:
-              path: /var/run/docker.sock
+            - mountPath: /var/lib/docker
+              name: docker-storage
+        volumes:
+        - name: docker-storage
+          emptyDir: {}
         """
         }
     }
