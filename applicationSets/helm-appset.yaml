@@ -11,7 +11,7 @@ spec:
           - path: applications-charts/*/values/*.yaml  # Watch all values files in all apps
   template:
     metadata:
-      name: "{{path[1]}}-{{ splitList \".\ path.filename | first }}"  # appname-env (e.g., myapp-staging)
+      name: "{{ path[1] }}-{{ path.filename | replace: '.yaml', '' }}  # appname-env (e.g., myapp-staging)
     spec:
       project: default
       source:
