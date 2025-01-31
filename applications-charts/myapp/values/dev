@@ -1,11 +1,7 @@
-# Default values for myApp.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-
+name: myapp-dev
 replicaCount: 2
 namespace: dev
-port: 81
+port: 80
 nodePort: 30001
 image:
   repository: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp
