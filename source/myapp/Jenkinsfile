@@ -69,10 +69,8 @@ spec:
                 container('docker') {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
                         script {
-                            sh """
-                                echo $(aws ecr get-login-password --region ${AWS_REGION}) | docker login --username AWS --password-stdin ${ECR_REPO}
-                                docker push ${ECR_REPO}:${IMAGE_TAG}
-                            """
+                            sh  "echo $(aws ecr get-login-password --region ${AWS_REGION}) | docker login --username AWS --password-stdin ${ECR_REPO}"
+                            sh   " docker push ${ECR_REPO}:${IMAGE_TAG}"
                         }
                     }
                 }
