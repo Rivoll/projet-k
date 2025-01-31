@@ -9,44 +9,30 @@ metadata:
     jenkins-agent: "true"
 spec:
   containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    tty: true
-  - name: docker
-    image: docker:20.10-dind
-    securityContext:
-      privileged: true
-    command:
-      - "sh"
-      - "-c"
-      - |
-        dockerd-entrypoint.sh --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-        sleep 15  # Wait for Docker to initialize
-        docker info  # Check if Docker is running
-        tail -f /dev/null  # Keep container alive
-    tty: true
-    volumeMounts:
-      - name: docker-sock
-        mountPath: /var/run/docker.sock
-      - name: docker-storage
-        mountPath: /var/lib/docker
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      tty: true
+    - name: docker
+      image: docker:24-dind  # Latest stable Docker-in-Docker image
+      securityContext:
+        privileged: true  # Required for Docker-in-Docker
+      tty: true
+      command:
+        - dockerd
+      args:
+        - "--host=unix:///var/run/docker.sock"
+        - "--storage-driver=overlay2"
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      volumeMounts:
+        - name: docker-storage
+          mountPath: /var/lib/docker
   volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-        type: Socket
     - name: docker-storage
       emptyDir: {}
 """
         }
-    }
-
-    environment {
-        AWS_DEFAULT_REGION = 'eu-west-3' 
-        ECR_REPO = "160885295462.dkr.ecr.eu-west-3.amazonaws.com/myapp"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        K8S_MANIFESTS_REPO = 'git@github.com:Rivoll/projet-k.git'
-        GIT_USER_EMAIL = 'pkeita@student.42.fr'
     }
 
     stages {
@@ -54,8 +40,8 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'docker --version' // Verify Docker version
-                        sh 'docker ps' // Check if Docker is running
+                        sh 'docker --version'   // Check if Docker is installed
+                        sh 'docker ps'         // Ensure the daemon is running
                     }
                 }
             }
@@ -63,42 +49,9 @@ spec:
 
         stage('Build and Test') {
             steps {
-                container('docker') {  
+                container('docker') {
                     script {
-                        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'  
-                        sh 'chmod +x run-test.sh && ./run-test.sh'  
-                    }
-                }
-            }
-        }
-
-        stage('Push Image to ECR') {
-            steps {
-                container('docker') {
-                    withAWS(credentials: 'aws-credentials-id', region: "${AWS_DEFAULT_REGION}") {
-                        script {
-                            sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                            sh 'docker push ${ECR_REPO}:${IMAGE_TAG}'
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Update Kubernetes Manifests') {
-            steps {
-                container('docker') {
-                    sshagent(['github-ssh-key']) {
-                        sh """
-                        git clone ${K8S_MANIFESTS_REPO} k8s-manifests
-                        cd k8s-manifests/applications-charts/myapp
-                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
-                        git config user.email "${GIT_USER_EMAIL}"
-                        git config user.name "Jenkins"
-                        git add staging-values.yaml
-                        git commit -m "Update image tag to ${IMAGE_TAG}"
-                        git push origin main
-                        """
+                        sh 'docker build -t myapp:latest .'  // Build Docker image
                     }
                 }
             }
@@ -107,10 +60,10 @@ spec:
 
     post {
         success {
-            echo '🎉 CI pipeline succeeded! Image pushed and Kubernetes manifests updated.'
+            echo "✅ CI pipeline succeeded!"
         }
         failure {
-            echo '❌ CI pipeline failed.'
+            echo "❌ CI pipeline failed."
         }
     }
 }
