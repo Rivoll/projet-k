@@ -23,19 +23,23 @@ pipeline {
                 apk add --no-cache shadow
                 groupadd -g 999 docker || true
                 usermod -aG docker jenkins || true
-                dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-                sleep 5
-                tail -f /dev/null
+                dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 > /var/log/dockerd.log 2>&1 &
+                sleep 10
+                tail -f /var/log/dockerd.log
             tty: true
             volumeMounts:
               - name: docker-sock
                 mountPath: /var/run/docker.sock
               - name: docker-storage
                 mountPath: /var/lib/docker
+              - name: workspace-volume
+                mountPath: /home/jenkins/agent
           volumes:
             - name: docker-sock
               emptyDir: {}
             - name: docker-storage
+              emptyDir: {}
+            - name: workspace-volume
               emptyDir: {}
         """
         }
@@ -55,6 +59,7 @@ pipeline {
                 container('docker') {
                     script {
                         sh 'docker version'
+                        sh 'docker info'  // Added this to debug docker daemon status
                         sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
                         sh 'run-test.sh'
                     }
@@ -95,10 +100,4 @@ pipeline {
 
     post {
         success {
-            echo 'CI pipeline succeeded! Image pushed and Kubernetes manifests updated.'
-        }
-        failure {
-            echo 'CI pipeline failed.'
-        }
-    }
-}
+            echo 'CI pipeline succeeded! Image pushed an
