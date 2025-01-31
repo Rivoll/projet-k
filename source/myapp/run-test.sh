@@ -6,7 +6,7 @@ set -e
 echo "Starting test script for static HTML site..."
 
 # Step 1: Check if the HTML files exist
-if [ ! -d "/usr/share/nginx/html" ] || [ -z "$(ls -A /usr/share/nginx/html)" ]; then
+if [ ! -d "/usr/share/nginx/html/" ] || [ -z "$(ls -A /usr/share/nginx/html/)" ]; then
     echo "Error: HTML files are missing in /usr/share/nginx/html"
     exit 1
 else
