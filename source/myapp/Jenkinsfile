@@ -13,18 +13,18 @@ spec:
       image: jenkins/inbound-agent:latest
       tty: true
     - name: docker
-      image: docker:24-dind
+      image: amazonlinux:latest  # ✅ Use Amazon Linux with AWS CLI
+      command:
+        - "sh"
+        - "-c"
+        - |
+          yum install -y docker aws-cli
+          dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
+          sleep 15
+          tail -f /dev/null
       securityContext:
         privileged: true
       tty: true
-      command:
-        - dockerd
-      args:
-        - "--host=unix:///var/run/docker.sock"
-        - "--storage-driver=overlay2"
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
       volumeMounts:
         - name: docker-storage
           mountPath: /var/lib/docker
@@ -42,12 +42,12 @@ spec:
     }
 
     stages {
-        stage('Verify Docker') {
+        stage('Verify Docker & AWS CLI') {
             steps {
                 container('docker') {
                     script {
                         sh 'docker --version'
-                        sh 'docker ps'
+                        sh 'aws --version'
                     }
                 }
             }
@@ -57,7 +57,6 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'ls -la'  // Verify Dockerfile presence
                         sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} source/myapp/'
                     }
                 }
@@ -70,8 +69,8 @@ spec:
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
                         script {
                             sh """
-                                echo \$(aws ecr get-login-password --region ${AWS_REGION}) | docker login --username AWS --password-stdin ${ECR_REPO}
-                                docker push ${ECR_REPO}:${IMAGE_TAG}
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
+                                docker push ${ECR_REPO}:staging-${IMAGE_TAG}
                             """
                         }
                     }
