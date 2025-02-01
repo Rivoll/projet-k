@@ -14,7 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                namespace: {{.Values.env}}
                 name: myapp-{{.Values.env}}-svc
                 port:
                   number: 80
@@ -22,7 +21,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                namespace: {{.Values.env}}
                 name: myapp2-{{.Values.env}}-svc
                 port:
                   number: 80
