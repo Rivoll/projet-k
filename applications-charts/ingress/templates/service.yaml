@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Values.env}}
 spec:
   selector:
-    app: nginx-ingress-controller
+    app: ingress-nginx
   type: NodePort  # ✅ Expose externally
   ports:
     - name: http
