@@ -2,13 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{.Values.name}}-{{.Values.env}}-svc
-  namespace: {{.Values.env}}
+  namespace: ingress-nginx
 spec:
   selector:
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
 
   type: NodePort  # ✅ Expose externally
   ports:
@@ -20,4 +17,4 @@ spec:
     - name: https
       protocol: TCP
       port: 443
-      targetPort: 443
+      targetPort: 443 
