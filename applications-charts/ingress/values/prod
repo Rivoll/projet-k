@@ -1,0 +1,3 @@
+name: myingress
+env: prod
+NodePort: 30012

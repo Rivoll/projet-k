@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{.Values.name}}-{{.Values.env}}
+  namespace: {{.Values.env}}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /  # ✅ Ensure correct path forwarding
+spec:
+  ingressClassName: {{.Values.ingressClassName}}
+  rules:
+    - http:
+        paths:
+          - path: /myapp-{{.Values.env}}  # ✅ No regex
+            pathType: Prefix
+            backend:
+              service:
+                namespace: {{.Values.env}}
+                name: myapp-{{.Values.env}}-svc
+                port:
+                  number: 80
+          - path: /myapp2-{{.Values.env}}  # ✅ No regex
+            pathType: Prefix
+            backend:
+              service:
+                namespace: {{.Values.env}}
+                name: myapp2-{{.Values.env}}-svc
+                port:
+                  number: 80

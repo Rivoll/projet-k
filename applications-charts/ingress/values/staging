@@ -1,0 +1,3 @@
+name: myingress
+env: staging
+NodePort: 30011
