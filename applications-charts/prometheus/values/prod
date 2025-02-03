@@ -76,7 +76,7 @@ server:
   # Tell Prometheus that its UI should be served under "/prometheus"
   prefixURL: /prometheus
   # The external URL that Prometheus will use in links and redirects.
-  baseURL: "http://your-ingress-ip/prometheus"
+  baseURL: "http://35.180.117.247//prometheus"
   sidecarContainers: {}
   sidecarTemplateValues: {}
   clusterRoleNameOverride: ""
