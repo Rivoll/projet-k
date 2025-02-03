@@ -5,11 +5,10 @@ metadata:
   name: {{ template "prometheus.server.fullname" . }}-ingress
   namespace: {{ include "prometheus.namespace" . }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     {{- toYaml .Values.server.ingress.annotations | nindent 4 }}
 spec:
-  ingressClassName: nginx
   {{- if and .Values.server.ingress.hosts (gt (len .Values.server.ingress.hosts) 0) }}
+  ingressClassName: nginx
   rules:
     {{- range .Values.server.ingress.hosts }}
     - host: {{ . | quote }}
