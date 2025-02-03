@@ -389,7 +389,9 @@ server:
     ## Prometheus server Ingress hostnames with optional path (passed through tpl)
     ## Must be provided if Ingress is enabled
     ##
-    hosts: []
+    hosts: 
+      - "35.180.117.247"
+
     #   - prometheus.domain.com
     #   - domain.com/prometheus
 
