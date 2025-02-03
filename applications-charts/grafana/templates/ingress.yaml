@@ -7,10 +7,12 @@ metadata:
   namespace: {{ include "grafana.namespace" . }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
-  - http:
+  - host: "35.180.117.247"
+    http:
       paths:
       - path: /grafana
         pathType: Prefix

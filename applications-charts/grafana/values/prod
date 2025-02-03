@@ -530,6 +530,8 @@ admin:
 env: 
   GF_SERVER_ROOT_URL: "http://35.180.117.247:30101/grafana"
   GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+  GF_SERVER_DOMAIN: "http://35.180.117.247/"
+  GF_SERVER_ENFORCE_DOMAIN: "false
 
 
 ## "valueFrom" environment variable references that will be added to deployment pods. Name is templated.
