@@ -528,6 +528,7 @@ admin:
 ## make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
 
 env: 
+  GF_SERVER_PROTOCOL: "http"
   GF_SERVER_ROOT_URL: "http://35.180.117.247:30101/grafana/"
   GF_SERVER_SERVE_FROM_SUB_PATH: "true"  
 
@@ -877,6 +878,8 @@ grafana.ini:
     url: https://grafana.net
   server:
     domain: "%(protocol)s://%(domain)s/grafana/"
+    root_url: "http://worker_node_ip:30101/grafana/"
+    protocol: http
     serve_from_sub_path: true
 ## grafana Authentication can be enabled with the following values on grafana.ini
   #server:
