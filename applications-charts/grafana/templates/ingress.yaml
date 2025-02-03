@@ -13,13 +13,7 @@ metadata:
   {{- with .Values.ingress.annotations }}
   annotations: {}
 spec:
-  {{- if and $ingressSupportsIngressClassName .Values.ingress.ingressClassName }}
   ingressClassName: {{ .Values.ingress.ingressClassName }}
-  {{- end -}}
-  {{- with .Values.ingress.tls }}
-  tls:
-    {{- tpl (toYaml .) $ | nindent 4 }}
-  {{- end }}
   rules:
     -  http:
         paths:
