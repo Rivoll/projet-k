@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+{{- $fullName := include "grafana.fullname" . -}}
 apiVersion: {{ include "grafana.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
@@ -11,10 +12,6 @@ metadata:
     {{- end }}
   {{- with .Values.ingress.annotations }}
   annotations:
-    {{- range $key, $value := . }}
-    {{ $key }}: {{ tpl $value $ | quote }}
-    {{- end }}
-  {{- end }}
 spec:
   {{- if and $ingressSupportsIngressClassName .Values.ingress.ingressClassName }}
   ingressClassName: {{ .Values.ingress.ingressClassName }}
