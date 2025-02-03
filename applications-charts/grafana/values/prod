@@ -527,7 +527,9 @@ admin:
 ## 6. uncomment the annotation section in the serviceAccount: above
 ## make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
 
-env: {}
+env: 
+  GF_SERVER_ROOT_URL: "http://35.180.117.247/:30101/grafana/"
+  GF_SERVER_SERVE_FROM_SUB_PATH: "true"  
 
 
 ## "valueFrom" environment variable references that will be added to deployment pods. Name is templated.
@@ -874,7 +876,8 @@ grafana.ini:
   grafana_net:
     url: https://grafana.net
   server:
-    domain: "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ tpl (.Values.ingress.hosts | first) . }}{{ else }}''{{ end }}"
+    domain: "%(protocol)s://%(domain)s/grafana/"
+    serve_from_sub_path: true
 ## grafana Authentication can be enabled with the following values on grafana.ini
   #server:
       # The full public facing url you use in browser, used for redirects and emails
