@@ -527,9 +527,8 @@ admin:
 ## 6. uncomment the annotation section in the serviceAccount: above
 ## make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
 
-env: 
-  GF_SERVER_ROOT_URL: "http://35.180.117.247:30101/grafana"
-  GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+env: {}
+
 
 ## "valueFrom" environment variable references that will be added to deployment pods. Name is templated.
 ## ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core
@@ -877,10 +876,8 @@ grafana.ini:
   server:
     domain: "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ tpl (.Values.ingress.hosts | first) . }}{{ else }}''{{ end }}"
 ## grafana Authentication can be enabled with the following values on grafana.ini
- # server:
+  #server:
       # The full public facing url you use in browser, used for redirects and emails
-    root_url: "%(protocol)s://%(domain)s/grafana/"
-    serve_from_sub_path: true
  # https://grafana.com/docs/grafana/latest/auth/github/#enable-github-in-grafana
  # auth.github:
  #    enabled: false
