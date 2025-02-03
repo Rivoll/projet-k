@@ -877,8 +877,7 @@ grafana.ini:
   grafana_net:
     url: https://grafana.net
   server:
-    domain: "%(protocol)s://%(domain)s/grafana/"
-    root_url: "http://worker_node_ip:30101/grafana/"
+    root_url: "%(protocol)s://%(domain)s/grafana/"
     protocol: http
     serve_from_sub_path: true
 ## grafana Authentication can be enabled with the following values on grafana.ini
