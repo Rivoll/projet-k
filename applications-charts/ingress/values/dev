@@ -1,3 +1,0 @@
-name: myingress
-env: dev
-NodePort: 30010
