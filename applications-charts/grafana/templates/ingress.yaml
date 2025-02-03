@@ -18,3 +18,4 @@ spec:
             name:  {{ include "grafana.fullname" . }}
             port:
               number: 80
+{{- end }}            
