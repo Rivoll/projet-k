@@ -14,7 +14,7 @@ spec:
       - path: /grafana
         pathType: Prefix
         backend:
-          service: {{ include "grafana.fullname" . }}
-            name: 
+          service:
+            name:  {{ include "grafana.fullname" . }}
             port:
               number: 80
