@@ -1310,12 +1310,3 @@ prometheus-pushgateway:
   serviceAnnotations:
     prometheus.io/probe: pushgateway
 
-
-
-grafana:
-  enabled: true
-  adminPassword: "admin"
-  persistence:
-    enabled: true
-    size: 5Gi
-  
