@@ -7,8 +7,8 @@ metadata:
   annotations:
     {{- toYaml .Values.server.ingress.annotations | nindent 4 }}
 spec:
-  {{- if and .Values.server.ingress.hosts (gt (len .Values.server.ingress.hosts) 0) }}
   ingressClassName: nginx
+  {{- if and .Values.server.ingress.hosts (gt (len .Values.server.ingress.hosts) 0) }}  
   rules:
     {{- range .Values.server.ingress.hosts }}
     - host: {{ . | quote }}
@@ -27,6 +27,6 @@ spec:
     service:
       name: {{ template "prometheus.server.fullname" . }}
       port:
-        number: {{ .Values.server.service.servicePort }}
+        number: 9090
   {{- end }}
 {{- end }}
