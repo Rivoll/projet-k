@@ -528,7 +528,7 @@ admin:
 ## make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
 
 env: 
-  GF_SERVER_ROOT_URL: "http://35.180.117.247/grafana"
+  GF_SERVER_ROOT_URL: "http://35.180.117.247:30101/grafana"
   GF_SERVER_SERVE_FROM_SUB_PATH: "true"
 
 
