@@ -217,11 +217,11 @@ server:
   ## The URL prefix at which the container can be accessed. Useful in the case the '-web.external-url' includes a slug
   ## so that the various internal URLs are still able to access as they are in the default case.
   ## (Optional)
-  prefixURL: ""
+  prefixURL: "/prometheus"
 
   ## External URL which can access prometheus
   ## Maybe same with Ingress host name
-  baseURL: ""
+  baseURL: "http://35.180.117.247:30101/prometheus"
 
   ## Additional server container environment variables
   ##
@@ -310,7 +310,9 @@ server:
   ## Additional Prometheus server container arguments
   ## Set to null for argumentless flags
   ##
-  extraArgs: {}
+  extraArgs: {
+    
+  }
     # web.enable-remote-write-receiver: null
 
   ## Additional InitContainers to initialize the pod
@@ -365,7 +367,7 @@ server:
   ingress:
     ## If true, Prometheus server Ingress will be created
     ##
-    enabled: false
+    enabled: true
 
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
@@ -391,7 +393,7 @@ server:
     #   - prometheus.domain.com
     #   - domain.com/prometheus
 
-    path: /
+    path: /prometheus
 
     # pathType is only for k8s >= 1.18
     pathType: Prefix
