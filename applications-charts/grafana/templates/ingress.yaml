@@ -11,8 +11,7 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
-  - host: "35.180.117.247"
-    http:
+  - http:
       paths:
       - path: /grafana
         pathType: Prefix
