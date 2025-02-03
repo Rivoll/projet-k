@@ -9,13 +9,12 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
-    - http:
-
-      paths:
-      - path: /grafana
-        pathType: Prefix
-        backend:
-          service: {{ include "grafana.fullname" . }}
-            name: 
-            port:
-              number: 80
+  - http:
+    paths:
+    - path: /grafana
+      pathType: Prefix
+      backend:
+        service: {{ include "grafana.fullname" . }}
+          name: 
+          port:
+            number: 80
