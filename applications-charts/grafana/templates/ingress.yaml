@@ -6,17 +6,17 @@ metadata:
   name: {{ $fullName }}
   namespace: {{ include "grafana.namespace" . }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
   - http:
       paths:
-      - path: /grafana(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /grafana
+        pathType: Prefix
         backend:
           service:
             name:  {{ include "grafana.fullname" . }}
             port:
-              number: 3000
+              number: 80
 {{- end }}            
