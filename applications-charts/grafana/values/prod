@@ -661,7 +661,7 @@ datasources:
     datasources:
       - name: Prometheus
         type: prometheus
-        url: http://prometheus-prod-server.prod.svc.cluster.local:9090/prometheus
+        url: http://prometheus-prod-server.prod.svc.cluster.local:30101/prometheus
         access: proxy
         isDefault: true
 #  datasources.yaml:
