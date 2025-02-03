@@ -2,6 +2,18 @@ provider "aws" {
   region = "eu-west-3"
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "qaazuo-tf-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "eu-west-3"
+    dynamodb_table = "terraform-lock"  # Optional: for state locking
+    encrypt        = true              # Encrypt the state file
+  }
+}
+
+
+
 # Data Source: Default VPC
 data "aws_vpc" "default" {
   default = true
@@ -209,16 +221,6 @@ resource "aws_security_group" "worker_sg" {
   }
 }
 
-
-# registry
-resource "aws_ecrpublic_repository" "foo" {
-  region = "eu-west-3"
-
-  repository_name = "my-first-registry"
-  tags = {
-    env = "dev"
-  }
-}
 
 
 # Launch Template for k8s Workers
