@@ -1,4 +1,17 @@
 ---
+- name: Retrieve and run kubeadm join command
+  hosts: admin
+  gather_facts: no
+  tasks:
+    - name: Get the kubeadm join command
+      shell: kubeadm token create --print-join-command
+      register: join_command
+      changed_when: false
+
+    - name: Debug join command
+      debug:
+        msg: "{{ join_command.stdout }}"        
+
 - name: Install and configure containerd, Kubernetes tools, and initialize cluster
   hosts: worker
   become: yes
@@ -216,6 +229,10 @@
         state: started
         enabled: yes
 
-    - name: join labo2 cluster
-      command: kubeadm join 172.31.11.55:6443 --token v4n5s9.opkqmwi8o6ylpfry --discovery-token-ca-cert-hash sha256:7220c9537141a0e3837444e8ceb9d47cdff06e3aaba248150600628ea5267eee 
-      # La commande est valable que 24H donc faudrait trouver un moyen d'obtenir cette commande avec un mini script pour aller la chercher directement depuis l'admin.
+    - name: Fetch join command from admin node
+      set_fact:
+        worker_join_command: "{{ hostvars[groups['admin'][0]]['join_command']['stdout'] }}"
+
+    - name: Execute kubeadm join
+      shell: "{{ worker_join_command }}"
+      

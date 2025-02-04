@@ -50,7 +50,7 @@ resource "aws_instance" "admin" {
   instance_type = "t3.medium"  
 
 
-  security_groups = [aws_security_group.worker_sg.name]
+  vpc_security_group_ids  = [module.security_group.security_group_id]
 
   key_name = "projet-k"
   iam_instance_profile = "admin-profile"
@@ -67,7 +67,7 @@ resource "aws_instance" "worker" {
   ami           = "ami-09be70e689bddcef5"
   instance_type = "t3.medium"  
 
-  security_groups = [aws_security_group.worker_sg.name]
+  vpc_security_group_ids  = [module.security_group.security_group_id]
 
   key_name = "projet-k"
   iam_instance_profile = "admin-profile"
@@ -195,29 +195,68 @@ resource "aws_iam_instance_profile" "admin_profile" {
 }
 
 # Security Group for k8s Workers
-resource "aws_security_group" "worker_sg" {
-  name   = "worker-sg"
-  vpc_id = data.aws_vpc.default.id
 
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["91.169.209.14/32"]
-  }
+module "security_group" {
+  source         = "./sg"
+  sg_name        = "worker_sg"
+  sg_description = "Security Group for my app"
+  vpc_id         = data.aws_vpc.default.id
 
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    security_groups = [data.aws_security_group.default.id]
-  }
+  ingress_rules = [
+    # Allow all traffic from a specific my IP
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["91.169.209.14/32"]
+    },
+    
+    # Allow HTTP from anywhere
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    # Allow connections from another security group (e.g., Load Balancer SG)
+    {
+      from_port       = 443
+      to_port         = 443
+      protocol        = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+
+    # Allow connections from another security group (e.g., Load Balancer SG)
+    {
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+      security_groups = ["sg-03ae0747b59944a80"]
+    },
+
+    # Allow connections from another security group (e.g., Load Balancer SG)
+    {
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+      security_groups = ["sg-0722a80ca9819e761"]
+    }
+  ]
+
+  egress_rules = [
+    # Allow all outbound traffic
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
+
+  tags = {
+    Environment = "Production"
+    Owner       = "DevOps Team"
   }
 }
 
@@ -244,7 +283,7 @@ resource "aws_launch_template" "worker_template" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [aws_security_group.worker_sg.id]
+    security_groups             = [module.security_group.security_group_id]
   }
 }
 

@@ -1,0 +1,20 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-west-3  # Ensure this is your correct AWS region
+filters:
+  instance-state-name: running
+
+keyed_groups:
+  - key: tags.node_type
+    prefix: ""
+    separator: ""
+
+  - key: tags.node_type
+    prefix: ""
+    separator: ""
+
+compose:
+  ansible_host: public_ip_address  # Use private IPs for inventory
+  ansible_ssh_private_key_file: "'/home/ubuntu/.ssh/main.pem'"
+  ansible_user: "'ubuntu'"
+  ansible_python_interpreter: "'/usr/bin/python3'"
