@@ -21,9 +21,6 @@ spec:
       imagePullSecrets:
       - name: ecr-secret
   strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
     canary:
       steps:
         - setWeight: 25
