@@ -18,6 +18,13 @@ spec:
         image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }}
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: "250m"     # Request 0.25 CPU (250 millicores)
+            memory: "128Mi" # Request 128 MiB RAM
+          limits:
+            cpu: "500m"     # Max 0.5 CPU (500 millicores)
+            memory: "256Mi"
         livenessProbe:
           httpGet:
             path: /
