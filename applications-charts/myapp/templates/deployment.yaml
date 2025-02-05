@@ -20,7 +20,7 @@ spec:
         - containerPort: 80
       imagePullSecrets:
       - name: ecr-secret
-      livenessProbe:
+        livenessProbe:
           httpGet:
             path: /
             port: 80
