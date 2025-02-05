@@ -20,6 +20,7 @@ spec:
         targetRevision: main
         path: {{ path.path }} # Utilisation de Kustomize
         kustomize:
+          namePrefix: ""
       destination:
         server: "https://kubernetes.default.svc"
         namespace: prod # Définir le namespace de déploiement
