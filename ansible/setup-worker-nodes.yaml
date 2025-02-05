@@ -234,5 +234,5 @@
         worker_join_command: "{{ hostvars[groups['admin'][0]]['join_command']['stdout'] }}"
 
     - name: Execute kubeadm join
-      shell: "{{ worker_join_command }}"
+      shell: "{{ worker_join_command --ignore-preflight-errors=FileAvailable--etc-kubernetes-kubelet.conf,FileAvailable--etc-kubernetes-pki-ca.crt }}"
       

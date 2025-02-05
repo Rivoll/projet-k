@@ -20,3 +20,19 @@ spec:
         - containerPort: 80
       imagePullSecrets:
       - name: ecr-secret
+      livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5  # Wait 5s before first check
+          periodSeconds: 10       # Check every 10s
+          failureThreshold: 3     # Restart after 3 failures
+        
+        # Readiness Probe (Checks if container is ready to receive traffic)
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 2  # Wait 2s before first check
+          periodSeconds: 5        # Check every 5s
+          failureThreshold: 2     
