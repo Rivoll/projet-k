@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.app.name}}-{{.Values.env}}
+  namespace: {{ .Release.Namespace }} 
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: {{.Values.app.name}}-{{.Values.env}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.app.name}}-{{.Values.env}}
+    spec:
+      containers:
+      - name: {{.Values.app.name}}-{{.Values.env}}
+        image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "125m"     # Request 0.25 CPU (250 millicores)
+            memory: "64Mi" # Request 128 MiB RAM
+          limits:
+            cpu: "250m"     # Max 0.5 CPU (500 millicores)
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5  # Wait 5s before first check
+          periodSeconds: 10       # Check every 10s
+          failureThreshold: 3     # Restart after 3 failures
+        
+        # Readiness Probe (Checks if container is ready to receive traffic)
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 2  # Wait 2s before first check
+          periodSeconds: 5        # Check every 5s
+          failureThreshold: 2     
+      imagePullSecrets:
+      - name: ecr-secret
+        
