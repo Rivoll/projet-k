@@ -113,7 +113,7 @@ spec:
                         cd staging-repo/applications-charts/myapp
 
                         echo "📝 Updating image tag in staging-values.yaml..."
-                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging
+                        sed -i 's|tag: .*|tag: ${IMAGE_TAG}|' staging-values.yaml
 
                         echo "📤 Pushing changes to GitHub..."
                         git config user.email "patrick.keita@outlook.com"
