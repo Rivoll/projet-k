@@ -18,7 +18,7 @@ spec:
       source:
         repoURL: https://github.com/Rivoll/projet-k
         targetRevision: main
-        path: {{ path.path }} # Utilisation de Kustomize
+        path: "applications-kustomize/{{ path.basename }}/"
         kustomize:
           namePrefix: ""
       destination:
