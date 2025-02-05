@@ -118,7 +118,7 @@ spec:
                         echo "📤 Pushing changes to GitHub..."
                         git config user.email "patrick.keita@outlook.com"
                         git config user.name "Jenkins"
-                        git add staging-values.yaml
+                        git add values/staging
                         git commit -m "🚀 Update image tag to ${IMAGE_TAG}"
                         git push origin main
                         """
