@@ -23,15 +23,15 @@ spec:
   strategy:
     canary:
       steps:
-        - setWeight: 25
-        - pause:
-            duration: 1m
-        - setWeight: 50
-        - pause:
-            duration: 1m
-        - setWeight: 75
-        - pause:
-            duration: 1m
-        - setWeight: 100
-        - pause:
-            duration: 1
+      - setWeight: 25
+      - pause:
+          manual: true  # Manual approval step to control when the rollout proceeds
+      - setWeight: 50
+      - pause:
+          manual: true
+      - setWeight: 75
+      - pause:
+          manual: true
+      - setWeight: 100
+      - pause:
+          manual: true
