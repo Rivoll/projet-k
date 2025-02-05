@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: myapp
+  namespace: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: my-app
+          image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }
+          ports:
+            - containerPort: 80
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    canary:
+      steps:
+        - setWeight: 25
+        - pause:
+            duration: 1m
+        - setWeight: 50
+        - pause:
+            duration: 1m
+        - setWeight: 75
+        - pause:
+            duration: 1m
+        - setWeight: 100
+        - pause:
+            duration: 1m
