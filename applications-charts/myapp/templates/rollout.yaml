@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: 160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }
+          image: "160885295462.dkr.ecr.eu-west-3.amazonaws.com/dev/myapp:{{ .Values.image.tag }}"
           ports:
             - containerPort: 80
   strategy:
