@@ -12,7 +12,7 @@ spec:
           - path: "applications-kustomize/*/kustomization.yaml" # Indiquez ici le chemin vers vos fichiers YAML Kustomize
   template:
     metadata:
-      name: "kustomize-app" # Nom dynamique basé sur le fichier YAML
+      name: "{{ path.basename }}" # Nom dynamique basé sur le fichier YAML
     spec:
       project: default
       source:
