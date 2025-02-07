@@ -3,20 +3,21 @@ kind: Ingress
 metadata:
   name: {{.Values.name}}-{{.Values.env}}
   namespace: {{.Values.env}}
-  annotations: {}
+  annotations: 
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: {{.Values.ingressClassName}}
   rules:
     - http:
         paths:
-          - path: /myapp-{{.Values.env}}  
+          - path: /myapp-{{.Values.env}}(/|$)(.*)
             pathType: Prefix
             backend:
               service:
                 name: myapp-{{.Values.env}}-svc
                 port:
                   number: 80
-          - path: /myapp2-{{.Values.env}}  
+          - path: /myapp2-{{.Values.env}}(/|$)(.*)  
             pathType: Prefix
             backend:
               service:
