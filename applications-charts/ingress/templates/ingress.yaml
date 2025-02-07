@@ -12,14 +12,14 @@ spec:
     - http:
         paths:
           - path: /myapp-{{.Values.env}}(/?.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: myapp-{{.Values.env}}-svc
                 port:
                   number: 80
           - path: /myapp2-{{.Values.env}}(/?.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: myapp2-{{.Values.env}}-svc
